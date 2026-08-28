@@ -1,0 +1,6 @@
+{
+  "name": "Smart Chiclayo",
+  "description": "Centro de comando de movilidad urbana inteligente, monitoreo de transporte público, reporte de incidencias y solicitud de taxis en Chiclayo.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
