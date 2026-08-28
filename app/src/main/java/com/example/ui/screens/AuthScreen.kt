@@ -1,9 +1,13 @@
 package com.example.ui.screens
 
+import androidx.compose.animation.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -25,43 +29,69 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.data.UserProfile
+import com.example.data.UserRole
 import com.example.ui.theme.*
+
+enum class AuthMode {
+    LOGIN,
+    REGISTER
+}
 
 @Composable
 fun AuthScreen(
+    isLoading: Boolean,
     isError: Boolean,
     errorMessage: String,
+    successMessage: String?,
+    registeredUsers: List<UserProfile>,
     onLogin: (String, String) -> Unit,
-    onRequestClearance: () -> Unit
+    onRegister: (String, String, String, String, UserRole, String, String) -> Unit,
+    onClearError: () -> Unit
 ) {
-    var operatorId by remember { mutableStateOf("OP-CHICLAYO-01") }
-    var passcode by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+    var authMode by remember { mutableStateOf(AuthMode.LOGIN) }
+
+    // Login Fields
+    var loginIdentifier by remember { mutableStateOf("operador.chiclayo@smartcity.pe") }
+    var loginPasscode by remember { mutableStateOf("admin123") }
+    var loginPasswordVisible by remember { mutableStateOf(false) }
+
+    // Register Fields
+    var regFullName by remember { mutableStateOf("") }
+    var regEmail by remember { mutableStateOf("") }
+    var regOperatorId by remember { mutableStateOf("") }
+    var regPhone by remember { mutableStateOf("") }
+    var regRole by remember { mutableStateOf(UserRole.CIUDADANO) }
+    var regPassword by remember { mutableStateOf("") }
+    var regConfirmPassword by remember { mutableStateOf("") }
+    var regPasswordVisible by remember { mutableStateOf(false) }
+    var regConfirmPasswordVisible by remember { mutableStateOf(false) }
+
     var showRecoverDialog by remember { mutableStateOf(false) }
 
     if (showRecoverDialog) {
         AlertDialog(
             onDismissRequest = { showRecoverDialog = false },
-            containerColor = CyberSurfaceElevated,
+            containerColor = MinimalSurface,
             title = {
                 Text(
-                    text = "Recuperar Acceso",
+                    text = "Recuperar Contraseña",
                     color = TextPrimary,
                     fontWeight = FontWeight.Bold
                 )
             },
             text = {
                 Text(
-                    text = "Se enviará un código de verificación temporal a tu correo registrado o terminal de despacho municipal.",
+                    text = "Para recuperar tu acceso en Smart Chiclayo, ingresa tu correo registrado. Te enviaremos instrucciones de restablecimiento de credenciales.",
                     color = TextSecondary
                 )
             },
             confirmButton = {
                 Button(
                     onClick = { showRecoverDialog = false },
-                    colors = ButtonDefaults.buttonColors(containerColor = NeonCyan, contentColor = CyberDark)
+                    colors = ButtonDefaults.buttonColors(containerColor = MinimalPrimary, contentColor = Color.White)
                 ) {
-                    Text("Entendido", fontWeight = FontWeight.Bold)
+                    Text("Aceptar", fontWeight = FontWeight.Bold)
                 }
             }
         )
@@ -70,9 +100,8 @@ fun AuthScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground)
     ) {
-        // Futuristic background lines & dark gradient
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,33 +110,33 @@ fun AuthScreen(
                 .padding(horizontal = 24.dp)
                 .verticalScroll(rememberScrollState()),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
-            // Command Center Emblem
+            // Brand Emblem
             Box(
                 modifier = Modifier
-                    .size(76.dp)
+                    .size(68.dp)
                     .clip(RoundedCornerShape(18.dp))
-                    .background(CyberSurfaceElevated)
-                    .border(1.5.dp, NeonCyan.copy(alpha = 0.5f), RoundedCornerShape(18.dp)),
+                    .background(MinimalPrimaryContainer)
+                    .border(1.5.dp, MinimalPrimary.copy(alpha = 0.4f), RoundedCornerShape(18.dp)),
                 contentAlignment = Alignment.Center
             ) {
                 Icon(
-                    imageVector = Icons.Default.Security,
-                    contentDescription = "Command Logo",
-                    tint = NeonCyan,
-                    modifier = Modifier.size(40.dp)
+                    imageVector = Icons.Default.DirectionsBus,
+                    contentDescription = "Smart Chiclayo Logo",
+                    tint = MinimalPrimary,
+                    modifier = Modifier.size(36.dp)
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
             // Title
             Text(
                 text = "Smart Chiclayo",
-                style = MaterialTheme.typography.displayMedium.copy(
+                style = MaterialTheme.typography.headlineMedium.copy(
                     fontFamily = FontFamily.Serif,
                     fontWeight = FontWeight.Bold,
                     letterSpacing = 0.5.sp
@@ -116,268 +145,692 @@ fun AuthScreen(
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(4.dp))
-
             Text(
-                text = "Command Center Authentication",
-                style = MaterialTheme.typography.bodyMedium,
+                text = "Sistema Integrado de Movilidad Urbana",
+                style = MaterialTheme.typography.bodySmall,
                 color = TextSecondary,
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(22.dp))
 
-            // Credentials Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-                border = androidx.compose.foundation.BorderStroke(1.dp, CyberCardBorder)
-            ) {
-                Column(modifier = Modifier.padding(20.dp)) {
-                    Text(
-                        text = "Credentials",
-                        style = MaterialTheme.typography.titleSmall,
-                        color = TextSecondary,
-                        fontWeight = FontWeight.Medium
-                    )
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Operator ID or Email Field
-                    OutlinedTextField(
-                        value = operatorId,
-                        onValueChange = { operatorId = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("operator_id_input"),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Operator ID",
-                                tint = TextSecondary
-                            )
-                        },
-                        placeholder = { Text("Operator ID or Email", color = TextMuted) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = CyberCardBorder,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
-                            focusedContainerColor = CyberSurface,
-                            unfocusedContainerColor = CyberSurface
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // Passcode Field
-                    OutlinedTextField(
-                        value = passcode,
-                        onValueChange = { passcode = it },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("passcode_input"),
-                        leadingIcon = {
-                            Icon(
-                                imageVector = Icons.Default.Lock,
-                                contentDescription = "Passcode",
-                                tint = TextSecondary
-                            )
-                        },
-                        trailingIcon = {
-                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                                Icon(
-                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                    contentDescription = "Toggle password visibility",
-                                    tint = TextSecondary
-                                )
-                            }
-                        },
-                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                        placeholder = { Text("Passcode", color = TextMuted) },
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = CyberCardBorder,
-                            focusedTextColor = TextPrimary,
-                            unfocusedTextColor = TextPrimary,
-                            focusedContainerColor = CyberSurface,
-                            unfocusedContainerColor = CyberSurface
-                        )
-                    )
-
-                    // Error Message (Page 1)
-                    if (isError) {
-                        Spacer(modifier = Modifier.height(10.dp))
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.fillMaxWidth()
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Info,
-                                contentDescription = "Error",
-                                tint = TrafficRed,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = errorMessage.ifEmpty { "Authentication failed. Passcode required." },
-                                color = TrafficRed,
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Recover Access
-                    Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.CenterEnd) {
-                        Text(
-                            text = "Recover Access",
-                            color = TextSecondary,
-                            style = MaterialTheme.typography.bodySmall,
-                            modifier = Modifier
-                                .clickable { showRecoverDialog = true }
-                                .padding(vertical = 4.dp)
-                        )
-                    }
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // INITIALIZE LINK -> Button (Page 1 Cyan Pill)
-            Button(
-                onClick = { onLogin(operatorId, passcode) },
+            // Mode Selector (Iniciar Sesión / Crear Cuenta)
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
-                    .testTag("login_button"),
-                shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MinimalPrimary,
-                    contentColor = Color.White
-                ),
-                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                    .height(48.dp),
+                shape = RoundedCornerShape(24.dp),
+                color = MinimalSurfaceVariant,
+                border = BorderStroke(1.dp, MinimalBorderSubtle)
             ) {
                 Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text(
-                        text = "INITIALIZE LINK",
-                        style = MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            letterSpacing = 1.5.sp
-                        )
-                    )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Icon(
-                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                        contentDescription = "Continue",
-                        modifier = Modifier.size(18.dp)
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(24.dp))
-
-            // OR CONNECT VIA
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                HorizontalDivider(modifier = Modifier.weight(1f), color = CyberCardBorder)
-                Text(
-                    text = "  OR CONNECT VIA  ",
-                    color = TextMuted,
-                    style = MaterialTheme.typography.labelSmall
-                )
-                HorizontalDivider(modifier = Modifier.weight(1f), color = CyberCardBorder)
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            // Alternative Connection Icons
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Surface(
                     modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable { onLogin("OP-GOOGLE", "123456") },
-                    color = CyberSurfaceElevated,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, CyberCardBorder)
+                        .fillMaxSize()
+                        .padding(4.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Public,
-                            contentDescription = "Web Access",
-                            tint = TextPrimary,
-                            modifier = Modifier.size(22.dp)
+                    // Login Tab
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (authMode == AuthMode.LOGIN) MinimalPrimary else Color.Transparent
+                            )
+                            .clickable {
+                                authMode = AuthMode.LOGIN
+                                onClearError()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Iniciar Sesión",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = if (authMode == AuthMode.LOGIN) FontWeight.Bold else FontWeight.Medium,
+                                color = if (authMode == AuthMode.LOGIN) Color.White else TextSecondary
+                            )
                         )
                     }
-                }
 
-                Spacer(modifier = Modifier.width(20.dp))
-
-                Surface(
-                    modifier = Modifier
-                        .size(48.dp)
-                        .clip(RoundedCornerShape(10.dp))
-                        .clickable { onLogin("OP-PASSKEY", "123456") },
-                    color = CyberSurfaceElevated,
-                    border = androidx.compose.foundation.BorderStroke(1.dp, CyberCardBorder)
-                ) {
-                    Box(contentAlignment = Alignment.Center) {
-                        Icon(
-                            imageVector = Icons.Default.Fingerprint,
-                            contentDescription = "Passkey Access",
-                            tint = TextPrimary,
-                            modifier = Modifier.size(22.dp)
+                    // Register Tab
+                    Box(
+                        modifier = Modifier
+                            .weight(1f)
+                            .fillMaxHeight()
+                            .clip(RoundedCornerShape(20.dp))
+                            .background(
+                                if (authMode == AuthMode.REGISTER) MinimalPrimary else Color.Transparent
+                            )
+                            .clickable {
+                                authMode = AuthMode.REGISTER
+                                onClearError()
+                            },
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = "Crear Cuenta",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = if (authMode == AuthMode.REGISTER) FontWeight.Bold else FontWeight.Medium,
+                                color = if (authMode == AuthMode.REGISTER) Color.White else TextSecondary
+                            )
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(28.dp))
+            Spacer(modifier = Modifier.height(18.dp))
 
-            // Unregistered Operator? Request Clearance
-            Row(
-                modifier = Modifier.clickable { onRequestClearance() },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = "Unregistered Operator? ",
-                    color = TextSecondary,
-                    style = MaterialTheme.typography.bodyMedium
-                )
-                Text(
-                    text = "Request Clearance",
-                    color = TextPrimary,
-                    fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.bodyMedium
-                )
+            // Error / Success Feedback Banner
+            if (isError && errorMessage.isNotBlank()) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = TrafficRed.copy(alpha = 0.1f),
+                    border = BorderStroke(1.dp, TrafficRed.copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.ErrorOutline,
+                            contentDescription = "Error",
+                            tint = TrafficRed,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = errorMessage,
+                            color = TrafficRed,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+                        )
+                    }
+                }
+            }
+
+            if (successMessage != null) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 14.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    color = TrafficGreen.copy(alpha = 0.1f),
+                    border = BorderStroke(1.dp, TrafficGreen.copy(alpha = 0.4f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(12.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.CheckCircle,
+                            contentDescription = "Éxito",
+                            tint = TrafficGreen,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = successMessage,
+                            color = TrafficGreen,
+                            style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium)
+                        )
+                    }
+                }
+            }
+
+            // FORM CONTENT
+            AnimatedContent(
+                targetState = authMode,
+                label = "auth_form_transition"
+            ) { mode ->
+                if (mode == AuthMode.LOGIN) {
+                    // LOGIN FORM
+                    Column {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                            border = BorderStroke(1.dp, MinimalBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text(
+                                    text = "Credenciales de Acceso",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = TextPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Ingresa con tu correo o ID de operador registrado",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Identifier Field
+                                OutlinedTextField(
+                                    value = loginIdentifier,
+                                    onValueChange = {
+                                        loginIdentifier = it
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("operator_id_input"),
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Person,
+                                            contentDescription = "Usuario",
+                                            tint = MinimalPrimary
+                                        )
+                                    },
+                                    label = { Text("Correo o ID de Operador") },
+                                    placeholder = { Text("ej. vilcabanaale@gmail.com") },
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder,
+                                        focusedTextColor = TextPrimary,
+                                        unfocusedTextColor = TextPrimary
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                // Password Field
+                                OutlinedTextField(
+                                    value = loginPasscode,
+                                    onValueChange = {
+                                        loginPasscode = it
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("passcode_input"),
+                                    leadingIcon = {
+                                        Icon(
+                                            imageVector = Icons.Default.Lock,
+                                            contentDescription = "Contraseña",
+                                            tint = MinimalPrimary
+                                        )
+                                    },
+                                    trailingIcon = {
+                                        IconButton(onClick = { loginPasswordVisible = !loginPasswordVisible }) {
+                                            Icon(
+                                                imageVector = if (loginPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                contentDescription = "Alternar contraseña",
+                                                tint = TextSecondary
+                                            )
+                                        }
+                                    },
+                                    label = { Text("Contraseña") },
+                                    visualTransformation = if (loginPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder,
+                                        focusedTextColor = TextPrimary,
+                                        unfocusedTextColor = TextPrimary
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                // Forgot password link
+                                Box(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    contentAlignment = Alignment.CenterEnd
+                                ) {
+                                    Text(
+                                        text = "¿Olvidaste tu contraseña?",
+                                        color = MinimalPrimary,
+                                        style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.Medium),
+                                        modifier = Modifier
+                                            .clickable { showRecoverDialog = true }
+                                            .padding(vertical = 4.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(18.dp))
+
+                        // Quick Test Accounts Pill Selector
+                        Text(
+                            text = "Cuentas rápidas de prueba (Base de Datos):",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = TextSecondary,
+                            modifier = Modifier.align(Alignment.Start)
+                        )
+                        Spacer(modifier = Modifier.height(6.dp))
+
+                        LazyRow(
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            item {
+                                DemoAccountChip("👤 Ciudadano", "vilcabanaale@gmail.com", "chiclayo2026") { id, pass ->
+                                    loginIdentifier = id
+                                    loginPasscode = pass
+                                }
+                            }
+                            item {
+                                DemoAccountChip("🛡️ Administrador", "operador.chiclayo@smartcity.pe", "admin123") { id, pass ->
+                                    loginIdentifier = id
+                                    loginPasscode = pass
+                                }
+                            }
+                            item {
+                                DemoAccountChip("🚌 Conductor Bus", "chofer.linea12@chiclayo.pe", "bus123") { id, pass ->
+                                    loginIdentifier = id
+                                    loginPasscode = pass
+                                }
+                            }
+                            item {
+                                DemoAccountChip("🚖 Chofer Taxi", "carlos.taxi@chiclayo.pe", "taxi123") { id, pass ->
+                                    loginIdentifier = id
+                                    loginPasscode = pass
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(22.dp))
+
+                        // Submit Login Button
+                        Button(
+                            onClick = { onLogin(loginIdentifier, loginPasscode) },
+                            enabled = !isLoading,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .testTag("login_button"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MinimalPrimary,
+                                contentColor = Color.White
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.5.dp
+                                )
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = "INICIAR SESIÓN",
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.2.sp
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                                        contentDescription = "Entrar",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // REGISTER FORM
+                    Column {
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                            border = BorderStroke(1.dp, MinimalBorder)
+                        ) {
+                            Column(modifier = Modifier.padding(20.dp)) {
+                                Text(
+                                    text = "Registro de Nueva Cuenta",
+                                    style = MaterialTheme.typography.titleSmall,
+                                    color = TextPrimary,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Tus datos se guardarán de forma real en la base de datos",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                // Full Name
+                                OutlinedTextField(
+                                    value = regFullName,
+                                    onValueChange = {
+                                        regFullName = it
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("reg_fullname_input"),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Badge, contentDescription = null, tint = MinimalPrimary)
+                                    },
+                                    label = { Text("Nombre Completo") },
+                                    placeholder = { Text("ej. María Elena Torres") },
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                // Email
+                                OutlinedTextField(
+                                    value = regEmail,
+                                    onValueChange = {
+                                        regEmail = it
+                                        if (regOperatorId.isBlank() && it.contains("@")) {
+                                            regOperatorId = "OP-" + it.substringBefore("@").take(6).uppercase()
+                                        }
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("reg_email_input"),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Email, contentDescription = null, tint = MinimalPrimary)
+                                    },
+                                    label = { Text("Correo Electrónico") },
+                                    placeholder = { Text("ej. maria.torres@gmail.com") },
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                Row(modifier = Modifier.fillMaxWidth()) {
+                                    // Operator / User ID
+                                    OutlinedTextField(
+                                        value = regOperatorId,
+                                        onValueChange = {
+                                            regOperatorId = it
+                                            onClearError()
+                                        },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .testTag("reg_operator_id_input"),
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Fingerprint, contentDescription = null, tint = MinimalPrimary)
+                                        },
+                                        label = { Text("ID Usuario / Operador") },
+                                        placeholder = { Text("OP-MARIA") },
+                                        singleLine = true,
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MinimalPrimary,
+                                            unfocusedBorderColor = MinimalBorder
+                                        )
+                                    )
+
+                                    Spacer(modifier = Modifier.width(10.dp))
+
+                                    // Phone
+                                    OutlinedTextField(
+                                        value = regPhone,
+                                        onValueChange = {
+                                            regPhone = it
+                                            onClearError()
+                                        },
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .testTag("reg_phone_input"),
+                                        leadingIcon = {
+                                            Icon(Icons.Default.Phone, contentDescription = null, tint = MinimalPrimary)
+                                        },
+                                        label = { Text("Teléfono") },
+                                        placeholder = { Text("+51 987...") },
+                                        singleLine = true,
+                                        shape = RoundedCornerShape(12.dp),
+                                        colors = OutlinedTextFieldDefaults.colors(
+                                            focusedBorderColor = MinimalPrimary,
+                                            unfocusedBorderColor = MinimalBorder
+                                        )
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                // Role Picker
+                                Text(
+                                    text = "Tipo de Cuenta / Rol:",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = TextSecondary,
+                                    fontWeight = FontWeight.Medium
+                                )
+                                Spacer(modifier = Modifier.height(6.dp))
+
+                                Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    UserRole.entries.forEach { role ->
+                                        Surface(
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .clip(RoundedCornerShape(10.dp))
+                                                .clickable { regRole = role },
+                                            color = if (regRole == role) MinimalPrimaryContainer else MinimalSurfaceVariant,
+                                            border = BorderStroke(
+                                                1.dp,
+                                                if (regRole == role) MinimalPrimary else MinimalBorderSubtle
+                                            )
+                                        ) {
+                                            Row(
+                                                modifier = Modifier.padding(horizontal = 12.dp, vertical = 8.dp),
+                                                verticalAlignment = Alignment.CenterVertically
+                                            ) {
+                                                RadioButton(
+                                                    selected = regRole == role,
+                                                    onClick = { regRole = role },
+                                                    colors = RadioButtonDefaults.colors(selectedColor = MinimalPrimary)
+                                                )
+                                                Spacer(modifier = Modifier.width(6.dp))
+                                                Column {
+                                                    Text(
+                                                        text = role.title,
+                                                        style = MaterialTheme.typography.bodyMedium.copy(
+                                                            fontWeight = if (regRole == role) FontWeight.Bold else FontWeight.Medium,
+                                                            color = if (regRole == role) MinimalOnPrimaryContainer else TextPrimary
+                                                        )
+                                                    )
+                                                    Text(
+                                                        text = role.description,
+                                                        style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp),
+                                                        color = TextSecondary
+                                                    )
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(14.dp))
+
+                                // Password
+                                OutlinedTextField(
+                                    value = regPassword,
+                                    onValueChange = {
+                                        regPassword = it
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("reg_password_input"),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.Lock, contentDescription = null, tint = MinimalPrimary)
+                                    },
+                                    trailingIcon = {
+                                        IconButton(onClick = { regPasswordVisible = !regPasswordVisible }) {
+                                            Icon(
+                                                imageVector = if (regPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                contentDescription = null,
+                                                tint = TextSecondary
+                                            )
+                                        }
+                                    },
+                                    label = { Text("Contraseña (mínimo 4 caracteres)") },
+                                    visualTransformation = if (regPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder
+                                    )
+                                )
+
+                                Spacer(modifier = Modifier.height(12.dp))
+
+                                // Confirm Password
+                                OutlinedTextField(
+                                    value = regConfirmPassword,
+                                    onValueChange = {
+                                        regConfirmPassword = it
+                                        onClearError()
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .testTag("reg_confirm_password_input"),
+                                    leadingIcon = {
+                                        Icon(Icons.Default.LockClock, contentDescription = null, tint = MinimalPrimary)
+                                    },
+                                    trailingIcon = {
+                                        IconButton(onClick = { regConfirmPasswordVisible = !regConfirmPasswordVisible }) {
+                                            Icon(
+                                                imageVector = if (regConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                contentDescription = null,
+                                                tint = TextSecondary
+                                            )
+                                        }
+                                    },
+                                    label = { Text("Confirmar Contraseña") },
+                                    visualTransformation = if (regConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                    singleLine = true,
+                                    shape = RoundedCornerShape(12.dp),
+                                    colors = OutlinedTextFieldDefaults.colors(
+                                        focusedBorderColor = MinimalPrimary,
+                                        unfocusedBorderColor = MinimalBorder
+                                    )
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(20.dp))
+
+                        // Submit Register Button
+                        Button(
+                            onClick = {
+                                onRegister(
+                                    regFullName,
+                                    regEmail,
+                                    regOperatorId,
+                                    regPhone,
+                                    regRole,
+                                    regPassword,
+                                    regConfirmPassword
+                                )
+                            },
+                            enabled = !isLoading,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(52.dp)
+                                .testTag("register_button"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MinimalPrimary,
+                                contentColor = Color.White
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                        ) {
+                            if (isLoading) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(24.dp),
+                                    color = Color.White,
+                                    strokeWidth = 2.5.dp
+                                )
+                            } else {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.Center
+                                ) {
+                                    Text(
+                                        text = "REGISTRAR CUENTA & ACCEDER",
+                                        style = MaterialTheme.typography.labelLarge.copy(
+                                            fontWeight = FontWeight.Bold,
+                                            letterSpacing = 1.sp
+                                        )
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Icon(
+                                        imageVector = Icons.Default.Check,
+                                        contentDescription = "Guardar",
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            // Bottom Telemetry Coordinates (Page 1)
+            // Footer Information
             Text(
-                text = "SYS.AUTH.v4.41 // LAT: -6.7714 LON: -79.8409",
-                color = TextMuted.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.labelSmall,
+                text = "Base de Datos Local SQLite Room integrada // Listo para sincronización Cloud",
+                color = TextMuted,
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 textAlign = TextAlign.Center
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
+        }
+    }
+}
+
+@Composable
+private fun DemoAccountChip(
+    label: String,
+    identifier: String,
+    pass: String,
+    onSelect: (String, String) -> Unit
+) {
+    Surface(
+        modifier = Modifier
+            .clip(RoundedCornerShape(16.dp))
+            .clickable { onSelect(identifier, pass) },
+        color = MinimalSurfaceVariant,
+        border = BorderStroke(1.dp, MinimalBorderSubtle)
+    ) {
+        Row(
+            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = label,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MinimalPrimary
+                )
+            )
         }
     }
 }

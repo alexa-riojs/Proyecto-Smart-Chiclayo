@@ -1,24 +1,168 @@
 package com.example.data
 
+import com.example.data.local.UserDao
+import com.example.data.local.UserEntity
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
+import java.util.UUID
 
-class SmartChiclayoRepository {
+class SmartChiclayoRepository(
+    private val userDao: UserDao? = null
+) {
 
     private val _userProfile = MutableStateFlow(
         UserProfile(
-            id = "USR-7714",
+            id = "USR-001",
             operatorId = "OP-CHICLAYO-01",
-            name = "Admin User",
+            name = "Administrador Municipal",
             email = "operador.chiclayo@smartcity.pe",
-            role = UserRole.CIUDADANO,
-            clearanceLevel = "GENERAL ADMINISTRATOR",
+            role = UserRole.ADMINISTRADOR,
+            clearanceLevel = "LEVEL-4 MUNICIPAL DISPATCH",
             coordinates = "SYS.AUTH.v4.41 // LAT: -6.7714 LON: -79.8409"
         )
     )
     val userProfile: StateFlow<UserProfile> = _userProfile.asStateFlow()
+
+    private val _isLoggedIn = MutableStateFlow(false)
+    val isLoggedIn: StateFlow<Boolean> = _isLoggedIn.asStateFlow()
+
+    val registeredUsers: Flow<List<UserProfile>>? = userDao?.getAllUsers()?.map { list ->
+        list.map { it.toUserProfile() }
+    }
+
+    suspend fun authenticateUser(identifier: String, pass: String): Result<UserProfile> {
+        val cleanIdentifier = identifier.trim()
+        val cleanPass = pass.trim()
+
+        if (cleanIdentifier.isBlank()) {
+            return Result.failure(IllegalArgumentException("Ingresa tu correo o ID de operador."))
+        }
+        if (cleanPass.isBlank()) {
+            return Result.failure(IllegalArgumentException("Ingresa tu contraseña o código de acceso."))
+        }
+
+        // If Room DAO is provided, query the local database
+        if (userDao != null) {
+            val userEntity = userDao.findByIdentifier(cleanIdentifier)
+            if (userEntity == null) {
+                return Result.failure(IllegalArgumentException("No se encontró ninguna cuenta registrada con '$cleanIdentifier'."))
+            }
+
+            if (userEntity.passwordHash != cleanPass) {
+                return Result.failure(IllegalArgumentException("Contraseña incorrecta. Por favor verifica tus datos."))
+            }
+
+            // Update last login
+            val updated = userEntity.copy(lastLoginAt = System.currentTimeMillis())
+            userDao.updateUser(updated)
+
+            val profile = updated.toUserProfile()
+            _userProfile.value = profile
+            _isLoggedIn.value = true
+            return Result.success(profile)
+        } else {
+            // Fallback in-memory check
+            val mockProfile = UserProfile(
+                id = "USR-${cleanIdentifier.take(6).uppercase()}",
+                operatorId = cleanIdentifier,
+                name = if (cleanIdentifier.contains("@")) cleanIdentifier.substringBefore("@").replaceFirstChar { it.uppercase() } else cleanIdentifier,
+                email = if (cleanIdentifier.contains("@")) cleanIdentifier else "$cleanIdentifier@smartcity.pe",
+                role = if (cleanIdentifier.contains("admin", ignoreCase = true)) UserRole.ADMINISTRADOR else UserRole.CIUDADANO,
+                clearanceLevel = "VERIFIED OPERATOR"
+            )
+            _userProfile.value = mockProfile
+            _isLoggedIn.value = true
+            return Result.success(mockProfile)
+        }
+    }
+
+    suspend fun registerUser(
+        fullName: String,
+        email: String,
+        operatorId: String,
+        phone: String,
+        role: UserRole,
+        password: String
+    ): Result<UserProfile> {
+        val cleanName = fullName.trim()
+        val cleanEmail = email.trim().lowercase()
+        val cleanOpId = operatorId.trim().uppercase()
+        val cleanPhone = phone.trim()
+        val cleanPass = password.trim()
+
+        if (cleanName.length < 3) {
+            return Result.failure(IllegalArgumentException("El nombre completo debe tener al menos 3 caracteres."))
+        }
+        if (!cleanEmail.contains("@") || !cleanEmail.contains(".")) {
+            return Result.failure(IllegalArgumentException("Por favor ingresa un correo electrónico válido."))
+        }
+        if (cleanOpId.length < 3) {
+            return Result.failure(IllegalArgumentException("El ID de Operador / Usuario debe tener al menos 3 caracteres."))
+        }
+        if (cleanPass.length < 4) {
+            return Result.failure(IllegalArgumentException("La contraseña debe tener al obligatorio al menos 4 caracteres."))
+        }
+
+        if (userDao != null) {
+            // Check if email already exists
+            val existingEmail = userDao.getUserByEmail(cleanEmail)
+            if (existingEmail != null) {
+                return Result.failure(IllegalArgumentException("El correo '$cleanEmail' ya está registrado. Inicia sesión directamente."))
+            }
+
+            // Check if operatorId already exists
+            val existingOp = userDao.getUserByOperatorId(cleanOpId)
+            if (existingOp != null) {
+                return Result.failure(IllegalArgumentException("El ID de Operador '$cleanOpId' ya está en uso. Elige uno diferente."))
+            }
+
+            val clearance = when (role) {
+                UserRole.ADMINISTRADOR -> "LEVEL-4 MUNICIPAL DISPATCH"
+                UserRole.CONDUCTOR_TRANSPORTE -> "OPERADOR DE BUS URBANO"
+                UserRole.CONDUCTOR_TAXI -> "CONDUCTOR REGISTRADO CHICLAYO"
+                UserRole.CIUDADANO -> "CIUDADANO VERIFICADO"
+            }
+
+            val newUserEntity = UserEntity(
+                id = "USR-${UUID.randomUUID().toString().take(8).uppercase()}",
+                operatorId = cleanOpId,
+                fullName = cleanName,
+                email = cleanEmail,
+                phone = cleanPhone.ifBlank { "+51 900 000 000" },
+                passwordHash = cleanPass,
+                role = role.name,
+                clearanceLevel = clearance,
+                coordinates = "LAT: -6.7714 LON: -79.8409"
+            )
+
+            userDao.insertUser(newUserEntity)
+
+            val profile = newUserEntity.toUserProfile()
+            _userProfile.value = profile
+            _isLoggedIn.value = true
+            return Result.success(profile)
+        } else {
+            val fallbackProfile = UserProfile(
+                id = "USR-${UUID.randomUUID().toString().take(8).uppercase()}",
+                operatorId = cleanOpId,
+                name = cleanName,
+                email = cleanEmail,
+                role = role,
+                clearanceLevel = "REGISTRADO"
+            )
+            _userProfile.value = fallbackProfile
+            _isLoggedIn.value = true
+            return Result.success(fallbackProfile)
+        }
+    }
+
+    fun logout() {
+        _isLoggedIn.value = false
+    }
 
     private val _transitLines = MutableStateFlow(
         listOf(

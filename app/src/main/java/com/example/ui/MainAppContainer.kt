@@ -30,9 +30,14 @@ import com.example.ui.screens.*
 import com.example.ui.theme.*
 
 @Composable
-fun MainAppContainer(
-    viewModel: SmartChiclayoViewModel = viewModel()
-) {
+fun MainAppContainer() {
+    val context = androidx.compose.ui.platform.LocalContext.current
+    val database = remember { com.example.data.local.AppDatabase.getDatabase(context) }
+    val repository = remember { com.example.data.SmartChiclayoRepository(database.userDao()) }
+    val viewModel: SmartChiclayoViewModel = viewModel(
+        factory = SmartChiclayoViewModel.provideFactory(repository)
+    )
+
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     var showDrawer by remember { mutableStateOf(false) }
     var showNotificationsDialog by remember { mutableStateOf(false) }
@@ -267,17 +272,23 @@ fun MainAppContainer(
                 when (uiState.currentScreen) {
                     AppScreen.AUTH -> {
                         AuthScreen(
+                            isLoading = uiState.isAuthLoading,
                             isError = uiState.isAuthError,
                             errorMessage = uiState.authErrorMessage,
-                            onLogin = { opId, pass -> viewModel.login(opId, pass) },
-                            onRequestClearance = { viewModel.navigateTo(AppScreen.ROLE_SELECTION) }
+                            successMessage = uiState.authSuccessMessage,
+                            registeredUsers = uiState.registeredUsersList,
+                            onLogin = { id, pass -> viewModel.login(id, pass) },
+                            onRegister = { name, email, opId, phone, role, pass, confirmPass ->
+                                viewModel.register(name, email, opId, phone, role, pass, confirmPass)
+                            },
+                            onClearError = { viewModel.clearAuthMessages() }
                         )
                     }
                     AppScreen.ROLE_SELECTION -> {
                         RoleSelectionScreen(
                             currentRole = uiState.userProfile.role,
                             onRoleSelected = { role -> viewModel.selectRoleAndContinue(role) },
-                            onCancel = { viewModel.navigateTo(AppScreen.AUTH) }
+                            onCancel = { viewModel.logout() }
                         )
                     }
                     AppScreen.MAIN_APP -> {
@@ -322,7 +333,7 @@ fun MainAppContainer(
                                     userProfile = uiState.userProfile,
                                     onChangeRoleClick = { viewModel.navigateTo(AppScreen.ROLE_SELECTION) },
                                     onAdminDashboardClick = { viewModel.navigateTo(AppScreen.ADMIN_DASHBOARD) },
-                                    onLogoutClick = { viewModel.navigateTo(AppScreen.AUTH) }
+                                    onLogoutClick = { viewModel.logout() }
                                 )
                             }
                         }

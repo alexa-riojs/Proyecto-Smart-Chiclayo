@@ -18,12 +18,10 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.UserProfile
-import com.example.data.UserRole
 import com.example.ui.theme.*
 
 @Composable
@@ -36,7 +34,7 @@ fun ProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground)
     ) {
         Column(
             modifier = Modifier
@@ -48,9 +46,14 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                text = "Perfil de Operador",
-                style = MaterialTheme.typography.displayMedium.copy(fontWeight = FontWeight.Bold),
+                text = "Mi Cuenta",
+                style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                 color = TextPrimary
+            )
+            Text(
+                text = "Información registrada y estado de la cuenta",
+                style = MaterialTheme.typography.bodySmall,
+                color = TextSecondary
             )
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -59,22 +62,22 @@ fun ProfileScreen(
             Card(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-                border = BorderStroke(1.dp, CyberCardBorder)
+                colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                border = BorderStroke(1.dp, MinimalBorder)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            modifier = Modifier.size(56.dp),
+                            modifier = Modifier.size(58.dp),
                             shape = CircleShape,
-                            color = NeonCyan.copy(alpha = 0.2f),
-                            border = BorderStroke(1.5.dp, NeonCyan)
+                            color = MinimalPrimaryContainer,
+                            border = BorderStroke(1.5.dp, MinimalPrimary)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
                                 Icon(
                                     imageVector = Icons.Default.Person,
-                                    contentDescription = null,
-                                    tint = NeonCyan,
+                                    contentDescription = "Avatar de Usuario",
+                                    tint = MinimalPrimary,
                                     modifier = Modifier.size(32.dp)
                                 )
                             }
@@ -96,13 +99,13 @@ fun ProfileScreen(
                             Spacer(modifier = Modifier.height(4.dp))
                             Surface(
                                 shape = RoundedCornerShape(6.dp),
-                                color = Color(userProfile.role.badgeColor).copy(alpha = 0.15f),
-                                border = BorderStroke(1.dp, Color(userProfile.role.badgeColor).copy(alpha = 0.5f))
+                                color = MinimalPrimaryContainer,
+                                border = BorderStroke(1.dp, MinimalPrimary.copy(alpha = 0.4f))
                             ) {
                                 Text(
                                     text = userProfile.role.title.uppercase(),
                                     style = MaterialTheme.typography.labelSmall.copy(
-                                        color = Color(userProfile.role.badgeColor),
+                                        color = MinimalPrimary,
                                         fontWeight = FontWeight.Bold
                                     ),
                                     modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp)
@@ -112,14 +115,42 @@ fun ProfileScreen(
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
-                    HorizontalDivider(color = CyberCardBorder)
+                    HorizontalDivider(color = MinimalBorderSubtle)
                     Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = "ID Operador: ${userProfile.operatorId}",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TextMuted
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Column {
+                            Text(
+                                text = "ID OPERADOR / USUARIO",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = TextMuted
+                            )
+                            Text(
+                                text = userProfile.operatorId,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = TextPrimary
+                            )
+                        }
+
+                        Column(horizontalAlignment = Alignment.End) {
+                            Text(
+                                text = "NIVEL DE ACCESO",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                color = TextMuted
+                            )
+                            Text(
+                                text = userProfile.clearanceLevel,
+                                style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.SemiBold),
+                                color = MinimalPrimary
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
                     Text(
                         text = "Ubicación: Chiclayo, Lambayeque (-6.7714, -79.8409)",
                         style = MaterialTheme.typography.labelSmall,
@@ -131,11 +162,27 @@ fun ProfileScreen(
             Spacer(modifier = Modifier.height(20.dp))
 
             // Action Items
-            ProfileOptionRow("Cambiar Rol de Usuario", "Ciudadano, Conductor o Administrador", Icons.Default.SwapHoriz, onClick = onChangeRoleClick)
+            ProfileOptionRow(
+                title = "Cambiar Rol de Usuario",
+                subtitle = "Ciudadano, Conductor o Administrador",
+                icon = Icons.Default.SwapHoriz,
+                onClick = onChangeRoleClick
+            )
             Spacer(modifier = Modifier.height(12.dp))
-            ProfileOptionRow("Panel de Comando General", "Acceso a métricas de infraestructura", Icons.Default.AdminPanelSettings, onClick = onAdminDashboardClick)
+            ProfileOptionRow(
+                title = "Panel de Comando Municipal",
+                subtitle = "Acceso a métricas de infraestructura y semáforos",
+                icon = Icons.Default.AdminPanelSettings,
+                onClick = onAdminDashboardClick
+            )
             Spacer(modifier = Modifier.height(12.dp))
-            ProfileOptionRow("Cerrar Sesión", "Volver a pantalla de autenticación", Icons.Default.ExitToApp, onClick = onLogoutClick, isDestructive = true)
+            ProfileOptionRow(
+                title = "Cerrar Sesión",
+                subtitle = "Desconectar cuenta actual de este dispositivo",
+                icon = Icons.Default.ExitToApp,
+                onClick = onLogoutClick,
+                isDestructive = true
+            )
 
             Spacer(modifier = Modifier.height(100.dp))
         }
@@ -153,10 +200,11 @@ private fun ProfileOptionRow(
     Card(
         modifier = Modifier
             .fillMaxWidth()
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .testTag(if (isDestructive) "logout_button" else "profile_option"),
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-        border = BorderStroke(1.dp, CyberCardBorder)
+        colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+        border = BorderStroke(1.dp, MinimalBorder)
     ) {
         Row(
             modifier = Modifier
@@ -167,16 +215,16 @@ private fun ProfileOptionRow(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Surface(
-                    modifier = Modifier.size(38.dp),
-                    shape = RoundedCornerShape(8.dp),
-                    color = if (isDestructive) TrafficRed.copy(alpha = 0.15f) else CyberSurface,
-                    border = BorderStroke(1.dp, if (isDestructive) TrafficRed.copy(alpha = 0.4f) else CyberCardBorder)
+                    modifier = Modifier.size(40.dp),
+                    shape = RoundedCornerShape(10.dp),
+                    color = if (isDestructive) TrafficRed.copy(alpha = 0.12f) else MinimalPrimaryContainer,
+                    border = BorderStroke(1.dp, if (isDestructive) TrafficRed.copy(alpha = 0.3f) else MinimalPrimary.copy(alpha = 0.3f))
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = icon,
                             contentDescription = null,
-                            tint = if (isDestructive) TrafficRed else NeonCyan,
+                            tint = if (isDestructive) TrafficRed else MinimalPrimary,
                             modifier = Modifier.size(20.dp)
                         )
                     }

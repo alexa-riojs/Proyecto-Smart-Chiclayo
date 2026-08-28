@@ -1,6 +1,7 @@
 package com.example.ui
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import com.example.data.*
 import kotlinx.coroutines.Job
@@ -30,11 +31,14 @@ enum class MainTab {
 }
 
 data class UiState(
-    val currentScreen: AppScreen = AppScreen.MAIN_APP,
+    val currentScreen: AppScreen = AppScreen.AUTH,
     val currentTab: MainTab = MainTab.MAP,
     val userProfile: UserProfile = UserProfile(),
+    val isAuthLoading: Boolean = false,
     val isAuthError: Boolean = false,
     val authErrorMessage: String = "",
+    val authSuccessMessage: String? = null,
+    val registeredUsersList: List<UserProfile> = emptyList(),
     val transitLines: List<TransitLine> = emptyList(),
     val routeOptions: List<RouteOption> = emptyList(),
     val selectedRoute: RouteOption? = null,
@@ -52,7 +56,7 @@ data class UiState(
     val mapLayerMode: MapLayerMode = MapLayerMode.STANDARD,
     val showRoleSwitcherDialog: Boolean = false,
     val showNotificationBadge: Boolean = true,
-    val notificationMessage: String? = "Alerta de tráfico fluido en Chiclayo Centro",
+    val notificationMessage: String? = "Bienvenido al Sistema de Movilidad Smart Chiclayo",
     val systemTimeGmt: String = "11:14:50 GMT-5",
     val activeUsersCount: String = "12,450",
     val activeDriversCount: String = "842",
@@ -79,6 +83,11 @@ class SmartChiclayoViewModel(
         viewModelScope.launch {
             repository.userProfile.collect { profile ->
                 _uiState.update { it.copy(userProfile = profile) }
+            }
+        }
+        viewModelScope.launch {
+            repository.registeredUsers?.collect { users ->
+                _uiState.update { it.copy(registeredUsersList = users) }
             }
         }
         viewModelScope.launch {
@@ -136,24 +145,109 @@ class SmartChiclayoViewModel(
         _uiState.update { it.copy(currentTab = tab, currentScreen = AppScreen.MAIN_APP) }
     }
 
-    fun login(operatorId: String, passcode: String) {
-        if (passcode.isBlank()) {
+    fun login(identifier: String, pass: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAuthLoading = true, isAuthError = false, authErrorMessage = "") }
+            
+            // Brief simulation delay for responsive feel
+            delay(350)
+            
+            val result = repository.authenticateUser(identifier, pass)
+            result.onSuccess { profile ->
+                _uiState.update {
+                    it.copy(
+                        isAuthLoading = false,
+                        isAuthError = false,
+                        authErrorMessage = "",
+                        authSuccessMessage = "¡Bienvenido, ${profile.name}!",
+                        notificationMessage = "Sesión iniciada como ${profile.role.title}",
+                        currentScreen = if (profile.role == UserRole.ADMINISTRADOR) AppScreen.ADMIN_DASHBOARD else AppScreen.MAIN_APP,
+                        currentTab = MainTab.MAP
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isAuthLoading = false,
+                        isAuthError = true,
+                        authErrorMessage = error.message ?: "Error de autenticación. Verifica tus credenciales."
+                    )
+                }
+            }
+        }
+    }
+
+    fun register(
+        fullName: String,
+        email: String,
+        operatorId: String,
+        phone: String,
+        role: UserRole,
+        password: String,
+        confirmPassword: String
+    ) {
+        if (password != confirmPassword) {
             _uiState.update {
                 it.copy(
                     isAuthError = true,
-                    authErrorMessage = "Authentication failed. Passcode required."
+                    authErrorMessage = "Las contraseñas no coinciden. Por favor verifícalas."
                 )
             }
             return
         }
 
+        viewModelScope.launch {
+            _uiState.update { it.copy(isAuthLoading = true, isAuthError = false, authErrorMessage = "") }
+            delay(400)
+
+            val result = repository.registerUser(
+                fullName = fullName,
+                email = email,
+                operatorId = operatorId,
+                phone = phone,
+                role = role,
+                password = password
+            )
+
+            result.onSuccess { profile ->
+                _uiState.update {
+                    it.copy(
+                        isAuthLoading = false,
+                        isAuthError = false,
+                        authErrorMessage = "",
+                        authSuccessMessage = "¡Cuenta creada exitosamente para ${profile.name}!",
+                        notificationMessage = "Cuenta registrada y verificada en Smart Chiclayo.",
+                        currentScreen = if (profile.role == UserRole.ADMINISTRADOR) AppScreen.ADMIN_DASHBOARD else AppScreen.MAIN_APP,
+                        currentTab = MainTab.MAP
+                    )
+                }
+            }.onFailure { error ->
+                _uiState.update {
+                    it.copy(
+                        isAuthLoading = false,
+                        isAuthError = true,
+                        authErrorMessage = error.message ?: "No se pudo registrar la cuenta. Intenta nuevamente."
+                    )
+                }
+            }
+        }
+    }
+
+    fun logout() {
+        repository.logout()
         _uiState.update {
             it.copy(
+                currentScreen = AppScreen.AUTH,
                 isAuthError = false,
                 authErrorMessage = "",
-                currentScreen = AppScreen.ROLE_SELECTION
+                authSuccessMessage = null,
+                notificationMessage = "Has cerrado sesión."
             )
         }
+    }
+
+    fun clearAuthMessages() {
+        _uiState.update { it.copy(isAuthError = false, authErrorMessage = "", authSuccessMessage = null) }
     }
 
     fun selectRoleAndContinue(role: UserRole) {
@@ -329,5 +423,15 @@ class SmartChiclayoViewModel(
 
     fun dismissNotification() {
         _uiState.update { it.copy(notificationMessage = null) }
+    }
+
+    companion object {
+        fun provideFactory(repository: SmartChiclayoRepository): ViewModelProvider.Factory =
+            object : ViewModelProvider.Factory {
+                @Suppress("UNCHECKED_CAST")
+                override fun <T : ViewModel> create(modelClass: Class<T>): T {
+                    return SmartChiclayoViewModel(repository) as T
+                }
+            }
     }
 }
