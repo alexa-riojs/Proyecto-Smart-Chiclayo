@@ -46,22 +46,24 @@ fun TransitScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 600.dp)
                 .statusBarsPadding()
         ) {
-            // Top Bar (Matches Page 6)
+            // Top Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                IconButton(onClick = { /* Search */ }) {
+                IconButton(onClick = { /* Search shortcut */ }) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Buscar",
@@ -75,7 +77,7 @@ fun TransitScreen(
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
                     ),
-                    color = NeonCyan
+                    color = MinimalPrimary
                 )
 
                 IconButton(
@@ -90,15 +92,15 @@ fun TransitScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
-            // Header (Matches Page 6)
+            // Screen Header Title
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     text = "Transporte\nPúblico",
-                    style = MaterialTheme.typography.displayMedium.copy(
+                    style = MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        lineHeight = 32.sp
+                        lineHeight = 34.sp
                     ),
                     color = TextPrimary
                 )
@@ -120,9 +122,9 @@ fun TransitScreen(
                     )
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(14.dp))
 
-                // Search Box
+                // Search Input Field
                 OutlinedTextField(
                     value = searchQuery,
                     onValueChange = { searchQuery = it },
@@ -133,12 +135,19 @@ fun TransitScreen(
                     leadingIcon = {
                         Icon(Icons.Default.Search, contentDescription = null, tint = TextSecondary)
                     },
-                    shape = RoundedCornerShape(12.dp),
+                    trailingIcon = {
+                        if (searchQuery.isNotEmpty()) {
+                            IconButton(onClick = { searchQuery = "" }) {
+                                Icon(Icons.Default.Clear, contentDescription = "Limpiar", tint = TextSecondary)
+                            }
+                        }
+                    },
+                    shape = RoundedCornerShape(14.dp),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = NeonCyan,
-                        unfocusedBorderColor = CyberCardBorder,
-                        focusedContainerColor = CyberSurfaceCard,
-                        unfocusedContainerColor = CyberSurfaceCard,
+                        focusedBorderColor = MinimalPrimary,
+                        unfocusedBorderColor = MinimalBorder,
+                        focusedContainerColor = MinimalSurface,
+                        unfocusedContainerColor = MinimalSurface,
                         focusedTextColor = TextPrimary,
                         unfocusedTextColor = TextPrimary
                     ),
@@ -146,14 +155,14 @@ fun TransitScreen(
                 )
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(14.dp))
 
-            // Transit Line Cards (Matches Page 6)
+            // Transit Line Cards
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(horizontal = 20.dp),
-                contentPadding = PaddingValues(bottom = 90.dp),
+                contentPadding = PaddingValues(bottom = 96.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
                 items(filteredLines, key = { it.id }) { line ->
@@ -184,8 +193,8 @@ private fun TransitLineCard(
             .clickable { onToggleExpand() }
             .testTag("transit_card_${line.number.lowercase()}"),
         shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-        border = BorderStroke(1.dp, if (line.number == "12") NeonCyan.copy(alpha = 0.6f) else CyberCardBorder)
+        colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+        border = BorderStroke(1.dp, if (line.number == "12") MinimalPrimary.copy(alpha = 0.6f) else MinimalBorder)
     ) {
         Column(modifier = Modifier.padding(18.dp)) {
             // Header Row: Badge, Name, Status
@@ -198,14 +207,14 @@ private fun TransitLineCard(
                     modifier = Modifier.size(46.dp),
                     shape = RoundedCornerShape(10.dp),
                     color = Color(line.badgeColor),
-                    border = BorderStroke(1.dp, CyberCardBorder)
+                    border = BorderStroke(1.dp, MinimalBorderSubtle)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Text(
                             text = line.number,
                             style = MaterialTheme.typography.titleLarge.copy(
                                 fontWeight = FontWeight.Black,
-                                color = if (line.badgeColor == 0xFF00E5FF.toLong()) CyberDark else if (line.badgeColor == 0xFFECEFF1.toLong()) Color.Black else Color.White
+                                color = if (line.badgeColor == 0xFF00E5FF.toLong()) Color(0xFF004D40) else if (line.badgeColor == 0xFFECEFF1.toLong()) Color.Black else Color.White
                             )
                         )
                     }
@@ -229,8 +238,8 @@ private fun TransitLineCard(
                 // Status Badge (En camino / Retraso / En ruta)
                 Surface(
                     shape = RoundedCornerShape(20.dp),
-                    color = if (line.hasDelay) TrafficRed.copy(alpha = 0.2f) else CyberSurfaceElevated,
-                    border = BorderStroke(1.dp, if (line.hasDelay) TrafficRed.copy(alpha = 0.6f) else CyberCardBorder)
+                    color = if (line.hasDelay) TrafficRed.copy(alpha = 0.12f) else MinimalSurfaceVariant,
+                    border = BorderStroke(1.dp, if (line.hasDelay) TrafficRed.copy(alpha = 0.4f) else MinimalBorderSubtle)
                 ) {
                     Row(
                         modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
@@ -249,7 +258,7 @@ private fun TransitLineCard(
                                 modifier = Modifier
                                     .size(6.dp)
                                     .clip(CircleShape)
-                                    .background(if (line.number == "12") NeonCyan else TrafficGreen)
+                                    .background(if (line.number == "12") MinimalPrimary else TrafficGreen)
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                         }
@@ -265,9 +274,9 @@ private fun TransitLineCard(
                 }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-            HorizontalDivider(color = CyberCardBorder.copy(alpha = 0.6f))
             Spacer(modifier = Modifier.height(14.dp))
+            HorizontalDivider(color = MinimalBorderSubtle)
+            Spacer(modifier = Modifier.height(12.dp))
 
             // Metrics: DISTANCIA and TIEMPO EST.
             Row(
@@ -277,7 +286,7 @@ private fun TransitLineCard(
                 Column {
                     Text(
                         text = "DISTANCIA",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted
                     )
                     Spacer(modifier = Modifier.height(2.dp))
@@ -291,7 +300,7 @@ private fun TransitLineCard(
                 Column(horizontalAlignment = Alignment.End) {
                     Text(
                         text = "TIEMPO EST.",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted
                     )
                     Spacer(modifier = Modifier.height(2.dp))
@@ -299,7 +308,7 @@ private fun TransitLineCard(
                         text = line.estimatedTime,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
-                            color = if (line.number == "12") NeonCyan else TextPrimary
+                            color = if (line.number == "12") MinimalPrimary else TextPrimary
                         )
                     )
                 }
@@ -307,12 +316,12 @@ private fun TransitLineCard(
 
             // Expanded details
             AnimatedVisibility(visible = isExpanded) {
-                Column(modifier = Modifier.padding(top = 16.dp)) {
+                Column(modifier = Modifier.padding(top = 14.dp)) {
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        color = CyberSurface,
-                        border = BorderStroke(1.dp, CyberCardBorder)
+                        color = MinimalSurfaceVariant,
+                        border = BorderStroke(1.dp, MinimalBorderSubtle)
                     ) {
                         Column(modifier = Modifier.padding(12.dp)) {
                             Row(
@@ -328,7 +337,7 @@ private fun TransitLineCard(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Ubicación actual:", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                                Text(line.currentStreet, style = MaterialTheme.typography.bodySmall, color = NeonCyan)
+                                Text(line.currentStreet, style = MaterialTheme.typography.bodySmall, color = MinimalPrimary)
                             }
                             Spacer(modifier = Modifier.height(4.dp))
                             Row(
@@ -336,7 +345,7 @@ private fun TransitLineCard(
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
                                 Text("Frecuencia:", style = MaterialTheme.typography.bodySmall, color = TextSecondary)
-                                Text(line.frequencyMinutes, style = MaterialTheme.typography.bodySmall, color = TextPrimary)
+                                Text(line.frequencyMinutes, style = MaterialTheme.typography.bodySmall.copy(fontWeight = FontWeight.SemiBold), color = TextPrimary)
                             }
                         }
                     }

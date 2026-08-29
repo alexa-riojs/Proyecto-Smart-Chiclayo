@@ -35,11 +35,13 @@ fun RoleSelectionScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 600.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 20.dp)
@@ -67,12 +69,12 @@ fun RoleSelectionScreen(
 
                 Column {
                     Text(
-                        text = "Paso 1 de 3",
+                        text = "Configuración",
                         style = MaterialTheme.typography.labelSmall,
                         color = TextSecondary
                     )
                     Text(
-                        text = "Configuración de Cuenta",
+                        text = "Selección de Perfil",
                         style = MaterialTheme.typography.titleMedium,
                         fontWeight = FontWeight.Bold,
                         color = TextPrimary
@@ -80,19 +82,19 @@ fun RoleSelectionScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Main Heading
             Text(
                 text = "¿Cómo usarás\nla plataforma?",
-                style = MaterialTheme.typography.displayMedium.copy(
+                style = MaterialTheme.typography.displaySmall.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    lineHeight = 32.sp
+                    lineHeight = 34.sp
                 ),
                 color = TextPrimary
             )
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
                 text = "Selecciona el perfil que mejor describa tu rol en la ciudad para personalizar tu experiencia y herramientas.",
@@ -100,7 +102,7 @@ fun RoleSelectionScreen(
                 color = TextSecondary
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
             // 4 Role Cards
             RoleCard(
@@ -110,7 +112,7 @@ fun RoleSelectionScreen(
                 onSelect = { selectedRole = UserRole.CIUDADANO }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             RoleCard(
                 role = UserRole.CONDUCTOR_TRANSPORTE,
@@ -119,7 +121,7 @@ fun RoleSelectionScreen(
                 onSelect = { selectedRole = UserRole.CONDUCTOR_TRANSPORTE }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             RoleCard(
                 role = UserRole.CONDUCTOR_TAXI,
@@ -128,7 +130,7 @@ fun RoleSelectionScreen(
                 onSelect = { selectedRole = UserRole.CONDUCTOR_TAXI }
             )
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             RoleCard(
                 role = UserRole.ADMINISTRADOR,
@@ -137,13 +139,13 @@ fun RoleSelectionScreen(
                 onSelect = { selectedRole = UserRole.ADMINISTRADOR }
             )
 
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(28.dp))
 
             // Bottom Actions: CANCELAR and CONTINUAR
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 20.dp),
+                    .padding(bottom = 24.dp),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -167,14 +169,15 @@ fun RoleSelectionScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MinimalPrimary,
                         contentColor = Color.White
-                    )
+                    ),
+                    elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                 ) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
                             text = "CONTINUAR",
                             style = MaterialTheme.typography.labelMedium.copy(
                                 fontWeight = FontWeight.Bold,
-                                letterSpacing = 1.sp
+                                letterSpacing = 0.5.sp
                             )
                         )
                         Spacer(modifier = Modifier.width(6.dp))
@@ -204,39 +207,39 @@ private fun RoleCard(
             .testTag("role_card_${role.name.lowercase()}"),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) CyberSurfaceElevated else CyberSurfaceCard
+            containerColor = if (isSelected) MinimalPrimaryContainer else MinimalSurface
         ),
         border = BorderStroke(
             width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) NeonCyan else CyberCardBorder
+            color = if (isSelected) MinimalPrimary else MinimalBorder
         )
     ) {
         Column(
-            modifier = Modifier.padding(18.dp)
+            modifier = Modifier.padding(16.dp)
         ) {
             // Icon container
             Surface(
                 modifier = Modifier.size(40.dp),
                 shape = RoundedCornerShape(10.dp),
-                color = if (isSelected) NeonCyan.copy(alpha = 0.15f) else CyberSurface,
-                border = BorderStroke(1.dp, if (isSelected) NeonCyan.copy(alpha = 0.4f) else CyberCardBorder)
+                color = if (isSelected) MinimalPrimary.copy(alpha = 0.18f) else MinimalSurfaceVariant,
+                border = BorderStroke(1.dp, if (isSelected) MinimalPrimary else MinimalBorderSubtle)
             ) {
                 Box(contentAlignment = Alignment.Center) {
                     Icon(
                         imageVector = icon,
                         contentDescription = role.title,
-                        tint = if (isSelected) NeonCyan else TextSecondary,
+                        tint = if (isSelected) MinimalPrimary else TextSecondary,
                         modifier = Modifier.size(22.dp)
                     )
                 }
             }
 
-            Spacer(modifier = Modifier.height(14.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
             Text(
                 text = role.title,
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                color = if (isSelected) NeonCyanLight else TextPrimary
+                color = if (isSelected) MinimalOnPrimaryContainer else TextPrimary
             )
 
             Spacer(modifier = Modifier.height(4.dp))

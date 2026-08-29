@@ -59,89 +59,96 @@ fun AdminDashboardScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 600.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
         ) {
             // 1. Command Center Top Bar
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .background(CyberSurfaceCard)
-                    .padding(horizontal = 20.dp, vertical = 12.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
+            Surface(
+                modifier = Modifier.fillMaxWidth(),
+                color = MinimalSurface,
+                border = BorderStroke(1.dp, MinimalBorder)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(NeonCyan.copy(alpha = 0.2f))
-                            .border(1.dp, NeonCyan, RoundedCornerShape(8.dp)),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Security,
-                            contentDescription = null,
-                            tint = NeonCyan,
-                            modifier = Modifier.size(20.dp)
-                        )
-                    }
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Column {
-                        Text(
-                            text = "Smart Chiclayo",
-                            style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                            color = NeonCyan
-                        )
-                        Text(
-                            text = "Command Center",
-                            style = MaterialTheme.typography.labelSmall,
-                            color = TextSecondary
-                        )
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    // System Online Status (Page 9)
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier
-                            .background(CyberSurface, RoundedCornerShape(20.dp))
-                            .border(1.dp, CyberCardBorder, RoundedCornerShape(20.dp))
-                            .padding(horizontal = 10.dp, vertical = 4.dp)
-                    ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
                         Box(
                             modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(TrafficGreen)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "SYSTEM ONLINE 11:14:50 GMT-5",
-                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                            color = TextPrimary
-                        )
+                                .size(36.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(MinimalPrimaryContainer)
+                                .border(1.dp, MinimalPrimary, RoundedCornerShape(8.dp)),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Security,
+                                contentDescription = null,
+                                tint = MinimalPrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(12.dp))
+                        Column {
+                            Text(
+                                text = "Smart Chiclayo",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = MinimalPrimary
+                            )
+                            Text(
+                                text = "Centro de Control",
+                                style = MaterialTheme.typography.labelSmall,
+                                color = TextSecondary
+                            )
+                        }
                     }
 
-                    Spacer(modifier = Modifier.width(10.dp))
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        // System Online Status
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            modifier = Modifier
+                                .background(MinimalSurfaceVariant, RoundedCornerShape(20.dp))
+                                .border(1.dp, MinimalBorderSubtle, RoundedCornerShape(20.dp))
+                                .padding(horizontal = 10.dp, vertical = 4.dp)
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(6.dp)
+                                    .clip(CircleShape)
+                                    .background(TrafficGreen)
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "ONLINE",
+                                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
+                                color = TextPrimary
+                            )
+                        }
 
-                    IconButton(
-                        onClick = onSwitchToCitizenView,
-                        modifier = Modifier.testTag("exit_admin_button")
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.ExitToApp,
-                            contentDescription = "Salir de Admin",
-                            tint = TextSecondary
-                        )
+                        Spacer(modifier = Modifier.width(8.dp))
+
+                        IconButton(
+                            onClick = onSwitchToCitizenView,
+                            modifier = Modifier.testTag("exit_admin_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.ExitToApp,
+                                contentDescription = "Salir de Admin",
+                                tint = TextSecondary
+                            )
+                        }
                     }
                 }
             }
@@ -150,68 +157,66 @@ fun AdminDashboardScreen(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(CyberSurface)
+                    .background(MinimalSurfaceVariant)
                     .padding(horizontal = 16.dp, vertical = 8.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 AdminNavChip("Dashboard", Icons.Default.Dashboard, selectedSidebarItem == "Dashboard") { selectedSidebarItem = "Dashboard" }
-                AdminNavChip("Incidents (12)", Icons.Default.Warning, selectedSidebarItem == "Incidents") { selectedSidebarItem = "Incidents" }
-                AdminNavChip("Cameras", Icons.Default.Videocam, selectedSidebarItem == "Cameras") { selectedSidebarItem = "Cameras" }
-                AdminNavChip("Traffic Lights", Icons.Default.Traffic, selectedSidebarItem == "Traffic Lights") { selectedSidebarItem = "Traffic Lights" }
+                AdminNavChip("Incidencias", Icons.Default.Warning, selectedSidebarItem == "Incidents") { selectedSidebarItem = "Incidents" }
+                AdminNavChip("Cámaras", Icons.Default.Videocam, selectedSidebarItem == "Cameras") { selectedSidebarItem = "Cameras" }
+                AdminNavChip("Semáforos", Icons.Default.Traffic, selectedSidebarItem == "Traffic Lights") { selectedSidebarItem = "Traffic Lights" }
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Main Content Area
             Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                // Header (Matches Page 9)
                 Text(
                     text = "Panel Administrativo",
                     style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.Bold),
                     color = TextPrimary
                 )
                 Text(
-                    text = "Real-time city metrics and infrastructure status.",
+                    text = "Métricas urbanas en tiempo real y estado de infraestructura.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = TextSecondary
                 )
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // KPI Metrics Row (Matches Page 9)
+                // KPI Metrics Row
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(10.dp)
                 ) {
-                    // Active Users Card
                     KpiMetricCard(
-                        title = "Active Users",
+                        title = "Usuarios Activos",
                         value = activeUsersCount,
-                        subtitle = "+5.2% vs last hour",
+                        subtitle = "+5.2% vs última hora",
                         icon = Icons.Default.People,
-                        iconTint = NeonCyan,
+                        iconTint = MinimalPrimary,
                         modifier = Modifier.weight(1f)
                     )
 
-                    // Active Drivers Card
                     KpiMetricCard(
-                        title = "Active Drivers",
+                        title = "Conductores",
                         value = activeDriversCount,
-                        subtitle = "92% utilization rate",
+                        subtitle = "92% en ruta",
                         icon = Icons.Default.DirectionsCar,
-                        iconTint = RoleTaxi,
+                        iconTint = MinimalSecondary,
                         modifier = Modifier.weight(1f)
                     )
                 }
 
                 Spacer(modifier = Modifier.height(10.dp))
 
-                // Incident Status (24h) Card (Matches Page 9)
+                // Incident Status (24h) Card
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-                    border = BorderStroke(1.dp, CyberCardBorder)
+                    colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                    border = BorderStroke(1.dp, MinimalBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Row(
@@ -220,7 +225,7 @@ fun AdminDashboardScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
-                                text = "Incident Status (24h)",
+                                text = "Estado de Incidencias (24h)",
                                 style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold),
                                 color = TextSecondary
                             )
@@ -233,23 +238,24 @@ fun AdminDashboardScreen(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceAround
                         ) {
-                            IncidentMetricColumn(label = "REPORTED", value = "$reportedCount.", color = TextPrimary)
-                            IncidentMetricColumn(label = "CONFIRMED", value = "$confirmedCount.", color = TrafficYellow)
-                            IncidentMetricColumn(label = "RESOLVED", value = "$resolvedCount", color = TrafficGreen)
+                            IncidentMetricColumn(label = "REPORTADAS", value = "$reportedCount", color = TextPrimary)
+                            IncidentMetricColumn(label = "CONFIRMADAS", value = "$confirmedCount", color = TrafficYellow)
+                            IncidentMetricColumn(label = "RESUELTAS", value = "$resolvedCount", color = TrafficGreen)
                         }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Live Traffic Map Simulation Container (Matches Page 9)
+                // Live Traffic Map Simulation Container
                 Card(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(220.dp),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-                    border = BorderStroke(1.dp, CyberCardBorder)
+                    colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                    border = BorderStroke(1.dp, MinimalBorder),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
                 ) {
                     Box(modifier = Modifier.fillMaxSize()) {
                         ChiclayoMapCanvas(
@@ -265,8 +271,8 @@ fun AdminDashboardScreen(
                                 .align(Alignment.TopStart)
                                 .padding(10.dp),
                             shape = RoundedCornerShape(12.dp),
-                            color = CyberDark.copy(alpha = 0.85f),
-                            border = BorderStroke(1.dp, CyberCardBorder)
+                            color = MinimalSurface.copy(alpha = 0.92f),
+                            border = BorderStroke(1.dp, MinimalBorder)
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -280,8 +286,8 @@ fun AdminDashboardScreen(
                                 )
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "LIVE TRAFFIC MAP",
-                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                    text = "MAPA EN VIVO CHICLAYO",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp, fontWeight = FontWeight.Bold),
                                     color = TextPrimary
                                 )
                             }
@@ -291,9 +297,9 @@ fun AdminDashboardScreen(
 
                 Spacer(modifier = Modifier.height(18.dp))
 
-                // Camera Feeds Section (Matches Page 9)
+                // Camera Feeds Section
                 Text(
-                    text = "Camera Feeds",
+                    text = "Cámaras de Vigilancia",
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                     color = TextPrimary
                 )
@@ -315,28 +321,28 @@ fun AdminDashboardScreen(
 
                 Spacer(modifier = Modifier.height(20.dp))
 
-                // Traffic Light Network Status (Matches Page 9)
+                // Traffic Light Network Status
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically
                 ) {
                     Text(
-                        text = "Traffic Light Network Status",
+                        text = "Red de Semáforos",
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
                         color = TextPrimary
                     )
 
                     Text(
-                        text = "View All Network",
+                        text = "Control Central",
                         style = MaterialTheme.typography.labelSmall,
-                        color = NeonCyan
+                        color = MinimalPrimary
                     )
                 }
 
-                Spacer(modifier = Modifier.height(12.dp))
+                Spacer(modifier = Modifier.height(10.dp))
 
-                // 4 Traffic Light Nodes Grid (Matches Page 9)
+                // 4 Traffic Light Nodes Grid
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -350,14 +356,14 @@ fun AdminDashboardScreen(
                     }
                 }
 
-                Spacer(modifier = Modifier.height(24.dp))
+                Spacer(modifier = Modifier.height(20.dp))
 
                 // Admin User info footer
                 Surface(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    color = CyberSurfaceCard,
-                    border = BorderStroke(1.dp, CyberCardBorder)
+                    color = MinimalSurface,
+                    border = BorderStroke(1.dp, MinimalBorder)
                 ) {
                     Row(
                         modifier = Modifier.padding(14.dp),
@@ -366,22 +372,22 @@ fun AdminDashboardScreen(
                         Surface(
                             modifier = Modifier.size(36.dp),
                             shape = CircleShape,
-                            color = AdminPurple.copy(alpha = 0.2f),
-                            border = BorderStroke(1.dp, AdminPurple)
+                            color = MinimalPrimaryContainer,
+                            border = BorderStroke(1.dp, MinimalPrimary)
                         ) {
                             Box(contentAlignment = Alignment.Center) {
-                                Icon(Icons.Default.Person, contentDescription = null, tint = AdminPurple, modifier = Modifier.size(20.dp))
+                                Icon(Icons.Default.Person, contentDescription = null, tint = MinimalPrimary, modifier = Modifier.size(20.dp))
                             }
                         }
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
-                            Text("Admin User", style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
-                            Text("General Administrator • LAT: -6.7714 LON: -79.8409", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
+                            Text(userProfile.name, style = MaterialTheme.typography.titleSmall.copy(fontWeight = FontWeight.Bold), color = TextPrimary)
+                            Text("Administrador General • Chiclayo (-6.7714, -79.8409)", style = MaterialTheme.typography.labelSmall, color = TextSecondary)
                         }
                     }
                 }
 
-                Spacer(modifier = Modifier.height(30.dp))
+                Spacer(modifier = Modifier.height(40.dp))
             }
         }
     }
@@ -398,8 +404,8 @@ private fun AdminNavChip(
         modifier = Modifier
             .clip(RoundedCornerShape(8.dp))
             .clickable { onClick() },
-        color = if (isSelected) NeonCyan.copy(alpha = 0.15f) else Color.Transparent,
-        border = BorderStroke(1.dp, if (isSelected) NeonCyan else CyberCardBorder)
+        color = if (isSelected) MinimalPrimaryContainer else Color.Transparent,
+        border = BorderStroke(1.dp, if (isSelected) MinimalPrimary else MinimalBorderSubtle)
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
@@ -408,7 +414,7 @@ private fun AdminNavChip(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = if (isSelected) NeonCyan else TextSecondary,
+                tint = if (isSelected) MinimalPrimary else TextSecondary,
                 modifier = Modifier.size(16.dp)
             )
             Spacer(modifier = Modifier.width(6.dp))
@@ -416,7 +422,7 @@ private fun AdminNavChip(
                 text = title,
                 style = MaterialTheme.typography.labelSmall.copy(
                     fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                    color = if (isSelected) NeonCyanLight else TextSecondary
+                    color = if (isSelected) MinimalOnPrimaryContainer else TextSecondary
                 )
             )
         }
@@ -435,8 +441,9 @@ private fun KpiMetricCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(14.dp),
-        colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-        border = BorderStroke(1.dp, CyberCardBorder)
+        colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+        border = BorderStroke(1.dp, MinimalBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column(modifier = Modifier.padding(14.dp)) {
             Row(
@@ -489,8 +496,9 @@ private fun CctvCameraPreviewCard(
     Card(
         modifier = modifier,
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = CyberSurface),
-        border = BorderStroke(1.dp, CyberCardBorder)
+        colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+        border = BorderStroke(1.dp, MinimalBorder),
+        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
     ) {
         Column {
             // Video Feed Simulation Box
@@ -498,9 +506,8 @@ private fun CctvCameraPreviewCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(86.dp)
-                    .background(Color(0xFF07111A))
+                    .background(Color(0xFF1E293B))
             ) {
-                // Scanlines & Video overlay text
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -518,14 +525,14 @@ private fun CctvCameraPreviewCard(
                         Text(
                             text = "REC | ${camera.id}",
                             style = MaterialTheme.typography.labelSmall.copy(fontSize = 9.sp),
-                            color = TextPrimary
+                            color = Color.White
                         )
                     }
 
                     Text(
-                        text = "CHICLAYO CCTV // LIVE",
+                        text = "CHICLAYO CCTV // EN VIVO",
                         style = MaterialTheme.typography.labelSmall.copy(fontSize = 8.sp),
-                        color = NeonCyan.copy(alpha = 0.7f)
+                        color = Color.White.copy(alpha = 0.7f)
                     )
                 }
             }
@@ -558,8 +565,8 @@ private fun TrafficLightNodeCard(
             .clip(RoundedCornerShape(10.dp))
             .clickable { onClick() }
             .testTag("node_${node.id.lowercase().replace(" ", "_").replace("-", "_")}"),
-        color = CyberSurfaceCard,
-        border = BorderStroke(1.dp, CyberCardBorder)
+        color = MinimalSurfaceVariant,
+        border = BorderStroke(1.dp, MinimalBorderSubtle)
     ) {
         Column(
             modifier = Modifier.padding(8.dp),
@@ -579,7 +586,6 @@ private fun TrafficLightNodeCard(
 
             Spacer(modifier = Modifier.height(8.dp))
 
-            // Indicator light dot
             val lightColor = when (node.state) {
                 TrafficLightState.GREEN -> TrafficGreen
                 TrafficLightState.YELLOW -> TrafficYellow

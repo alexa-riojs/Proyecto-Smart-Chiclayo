@@ -1,8 +1,6 @@
 package com.example.ui.screens
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -47,7 +45,7 @@ fun TaxiScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground)
     ) {
         // Map Canvas in background
         ChiclayoMapCanvas(
@@ -55,247 +53,237 @@ fun TaxiScreen(
             showActiveRoute = true
         )
 
-        // Top App Bar
-        Column(
+        // Main responsive container
+        Box(
             modifier = Modifier
-                .fillMaxWidth()
-                .statusBarsPadding()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxSize()
+                .widthIn(max = 600.dp)
+                .align(Alignment.TopCenter)
         ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                IconButton(onClick = { /* Search */ }) {
-                    Icon(
-                        imageVector = Icons.Default.Search,
-                        contentDescription = "Buscar",
-                        tint = TextPrimary
-                    )
-                }
-
-                Text(
-                    text = "Smart Chiclayo",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = FontFamily.Serif,
-                        fontWeight = FontWeight.Bold
-                    ),
-                    color = NeonCyan
-                )
-
-                IconButton(
-                    onClick = onOpenNotifications,
-                    modifier = Modifier.testTag("taxi_notifications_button")
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Notifications,
-                        contentDescription = "Notificaciones",
-                        tint = TextPrimary
-                    )
-                }
-            }
-        }
-
-        // Floating Map Controls (top right)
-        Column(
-            modifier = Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 80.dp, end = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
-        ) {
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = CyberSurfaceCard.copy(alpha = 0.9f),
-                border = BorderStroke(1.dp, CyberCardBorder)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.MyLocation, contentDescription = null, tint = NeonCyan, modifier = Modifier.size(20.dp))
-                }
-            }
-            Surface(
-                modifier = Modifier.size(40.dp),
-                shape = RoundedCornerShape(8.dp),
-                color = CyberSurfaceCard.copy(alpha = 0.9f),
-                border = BorderStroke(1.dp, CyberCardBorder)
-            ) {
-                Box(contentAlignment = Alignment.Center) {
-                    Icon(Icons.Default.Layers, contentDescription = null, tint = TextPrimary, modifier = Modifier.size(20.dp))
-                }
-            }
-        }
-
-        // Bottom Taxi Booking Card (Matches Page 8)
-        Card(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp)
-                .padding(bottom = 68.dp)
-                .testTag("taxi_bottom_panel"),
-            shape = RoundedCornerShape(20.dp),
-            colors = CardDefaults.cardColors(containerColor = CyberSurface.copy(alpha = 0.96f)),
-            border = BorderStroke(1.dp, CyberCardBorder)
-        ) {
+            // Top App Bar
             Column(
                 modifier = Modifier
-                    .padding(18.dp)
-                    .verticalScroll(rememberScrollState())
+                    .fillMaxWidth()
+                    .statusBarsPadding()
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
             ) {
-                // Header: "Solicitar Taxi" + "● LIVE"
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                Surface(
+                    shape = RoundedCornerShape(16.dp),
+                    color = MinimalSurface.copy(alpha = 0.95f),
+                    border = BorderStroke(1.dp, MinimalBorder),
+                    shadowElevation = 2.dp
                 ) {
-                    Text(
-                        text = "Solicitar Taxi",
-                        style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                        color = TextPrimary
-                    )
-
-                    Surface(
-                        shape = RoundedCornerShape(12.dp),
-                        color = CyberSurfaceElevated,
-                        border = BorderStroke(1.dp, CyberCardBorder)
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(NeonCyan)
+                        IconButton(onClick = { /* Search */ }) {
+                            Icon(
+                                imageVector = Icons.Default.Search,
+                                contentDescription = "Buscar",
+                                tint = TextPrimary
                             )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "LIVE",
-                                style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                color = NeonCyan
+                        }
+
+                        Text(
+                            text = "Smart Chiclayo",
+                            style = MaterialTheme.typography.titleLarge.copy(
+                                fontFamily = FontFamily.Serif,
+                                fontWeight = FontWeight.Bold
+                            ),
+                            color = MinimalPrimary
+                        )
+
+                        IconButton(
+                            onClick = onOpenNotifications,
+                            modifier = Modifier.testTag("taxi_notifications_button")
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Notifications,
+                                contentDescription = "Notificaciones",
+                                tint = TextPrimary
                             )
                         }
                     }
                 }
+            }
 
-                Spacer(modifier = Modifier.height(14.dp))
-
-                // Active Ride States (Searching / Assigned / Arriving)
-                if (taxiRide.status != TaxiRideStatus.IDLE) {
-                    ActiveTaxiStatusBanner(
-                        ride = taxiRide,
-                        onCancel = onCancelTaxi
-                    )
-                } else {
-                    // Pickup & Destination Fields (Matches Page 8)
-                    Surface(
+            // Bottom Taxi Booking Card
+            Card(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(bottom = 86.dp)
+                    .testTag("taxi_bottom_panel"),
+                shape = RoundedCornerShape(20.dp),
+                colors = CardDefaults.cardColors(containerColor = MinimalSurface.copy(alpha = 0.98f)),
+                border = BorderStroke(1.dp, MinimalBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(18.dp)
+                        .verticalScroll(rememberScrollState())
+                ) {
+                    // Header: "Solicitar Taxi" + "● DISPONIBLE"
+                    Row(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp),
-                        color = CyberSurfaceCard,
-                        border = BorderStroke(1.dp, CyberCardBorder)
-                    ) {
-                        Column(modifier = Modifier.padding(14.dp)) {
-                            // PUNTO DE RECOGIDA
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .clip(CircleShape)
-                                        .background(TextMuted)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "PUNTO DE RECOGIDA",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = TextMuted
-                                    )
-                                    Text(
-                                        text = pickupAddress,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
-                                        color = TextPrimary
-                                    )
-                                }
-                            }
-
-                            Spacer(modifier = Modifier.height(10.dp))
-                            HorizontalDivider(color = CyberCardBorder.copy(alpha = 0.5f))
-                            Spacer(modifier = Modifier.height(10.dp))
-
-                            // DESTINO
-                            Row(verticalAlignment = Alignment.CenterVertically) {
-                                Box(
-                                    modifier = Modifier
-                                        .size(10.dp)
-                                        .clip(CircleShape)
-                                        .background(NeonCyan)
-                                )
-                                Spacer(modifier = Modifier.width(10.dp))
-                                Column {
-                                    Text(
-                                        text = "DESTINO",
-                                        style = MaterialTheme.typography.labelSmall,
-                                        color = TextMuted
-                                    )
-                                    Text(
-                                        text = destinationAddress,
-                                        style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
-                                        color = TextPrimary
-                                    )
-                                }
-                            }
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // OPCIONES DISPONIBLES (Matches Page 8)
-                    Text(
-                        text = "OPCIONES DISPONIBLES",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = TextMuted,
-                        fontWeight = FontWeight.Bold
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    taxiOptions.forEach { option ->
-                        val isSelected = activeOption?.id == option.id
-                        TaxiOptionItem(
-                            option = option,
-                            isSelected = isSelected,
-                            onSelect = {
-                                activeOption = option
-                                onSelectOption(option)
-                            }
-                        )
-                        Spacer(modifier = Modifier.height(10.dp))
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Solicitar Taxi Button (Page 8)
-                    Button(
-                        onClick = onRequestTaxi,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp)
-                            .testTag("request_taxi_button"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MinimalPrimary,
-                            contentColor = Color.White
-                        )
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
                             text = "Solicitar Taxi",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                letterSpacing = 0.5.sp
-                            )
+                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
+                            color = TextPrimary
                         )
+
+                        Surface(
+                            shape = RoundedCornerShape(12.dp),
+                            color = MinimalPrimaryContainer,
+                            border = BorderStroke(1.dp, MinimalPrimary.copy(alpha = 0.3f))
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 10.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(6.dp)
+                                        .clip(CircleShape)
+                                        .background(TrafficGreen)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "EN VIVO",
+                                    style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
+                                    color = MinimalPrimary
+                                )
+                            }
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    // Active Ride States (Searching / Assigned / Arriving)
+                    if (taxiRide.status != TaxiRideStatus.IDLE) {
+                        ActiveTaxiStatusBanner(
+                            ride = taxiRide,
+                            onCancel = onCancelTaxi
+                        )
+                    } else {
+                        // Pickup & Destination Fields
+                        Surface(
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            color = MinimalSurfaceVariant,
+                            border = BorderStroke(1.dp, MinimalBorderSubtle)
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                // PUNTO DE RECOGIDA
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .clip(CircleShape)
+                                            .background(TextMuted)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "PUNTO DE RECOGIDA",
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                            color = TextMuted
+                                        )
+                                        Text(
+                                            text = pickupAddress,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Medium),
+                                            color = TextPrimary
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+                                HorizontalDivider(color = MinimalBorderSubtle)
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                // DESTINO
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(10.dp)
+                                            .clip(CircleShape)
+                                            .background(MinimalPrimary)
+                                    )
+                                    Spacer(modifier = Modifier.width(10.dp))
+                                    Column {
+                                        Text(
+                                            text = "DESTINO",
+                                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                                            color = TextMuted
+                                        )
+                                        Text(
+                                            text = destinationAddress,
+                                            style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold),
+                                            color = TextPrimary
+                                        )
+                                    }
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        // OPCIONES DISPONIBLES
+                        Text(
+                            text = "OPCIONES DISPONIBLES",
+                            style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
+                            color = TextMuted,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        taxiOptions.forEach { option ->
+                            val isSelected = activeOption?.id == option.id
+                            TaxiOptionItem(
+                                option = option,
+                                isSelected = isSelected,
+                                onSelect = {
+                                    activeOption = option
+                                    onSelectOption(option)
+                                }
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+
+                        // Solicitar Taxi Button
+                        Button(
+                            onClick = onRequestTaxi,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                                .testTag("request_taxi_button"),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = MinimalPrimary,
+                                contentColor = Color.White
+                            ),
+                            elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                        ) {
+                            Text(
+                                text = "Solicitar Taxi",
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    letterSpacing = 0.5.sp
+                                )
+                            )
+                        }
                     }
                 }
             }
@@ -316,17 +304,17 @@ private fun TaxiOptionItem(
             .testTag("taxi_option_${option.id}"),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) CyberSurfaceElevated else CyberSurfaceCard
+            containerColor = if (isSelected) MinimalPrimaryContainer else MinimalSurfaceVariant
         ),
         border = BorderStroke(
             width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) NeonCyan else CyberCardBorder
+            color = if (isSelected) MinimalPrimary else MinimalBorderSubtle
         )
     ) {
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(14.dp),
+                .padding(12.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
@@ -334,14 +322,14 @@ private fun TaxiOptionItem(
                 Surface(
                     modifier = Modifier.size(38.dp),
                     shape = RoundedCornerShape(8.dp),
-                    color = if (isSelected) NeonCyan.copy(alpha = 0.15f) else CyberSurface,
-                    border = BorderStroke(1.dp, if (isSelected) NeonCyan.copy(alpha = 0.4f) else CyberCardBorder)
+                    color = if (isSelected) MinimalPrimary else MinimalSurface,
+                    border = BorderStroke(1.dp, if (isSelected) MinimalPrimary else MinimalBorderSubtle)
                 ) {
                     Box(contentAlignment = Alignment.Center) {
                         Icon(
                             imageVector = if (option.iconType == "mototaxi") Icons.Default.TwoWheeler else Icons.Default.DirectionsCar,
                             contentDescription = option.name,
-                            tint = if (isSelected) NeonCyan else TextSecondary,
+                            tint = if (isSelected) Color.White else TextSecondary,
                             modifier = Modifier.size(20.dp)
                         )
                     }
@@ -353,7 +341,7 @@ private fun TaxiOptionItem(
                     Text(
                         text = option.name,
                         style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                        color = TextPrimary
+                        color = if (isSelected) MinimalOnPrimaryContainer else TextPrimary
                     )
                     Text(
                         text = "⏱ ${option.etaMinutes} min  •  ${option.subtitle}",
@@ -367,7 +355,7 @@ private fun TaxiOptionItem(
                 text = "S/ ${"%.2f".format(option.priceSoles)}",
                 style = MaterialTheme.typography.titleLarge.copy(
                     fontWeight = FontWeight.Black,
-                    color = if (isSelected) NeonCyan else TextPrimary
+                    color = if (isSelected) MinimalPrimary else TextPrimary
                 )
             )
         }
@@ -382,8 +370,8 @@ private fun ActiveTaxiStatusBanner(
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(14.dp),
-        color = CyberSurfaceElevated,
-        border = BorderStroke(1.dp, NeonCyan.copy(alpha = 0.6f))
+        color = MinimalSurfaceVariant,
+        border = BorderStroke(1.dp, MinimalPrimary.copy(alpha = 0.5f))
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             when (ride.status) {
@@ -394,7 +382,7 @@ private fun ActiveTaxiStatusBanner(
                     ) {
                         CircularProgressIndicator(
                             modifier = Modifier.size(24.dp),
-                            color = NeonCyan,
+                            color = MinimalPrimary,
                             strokeWidth = 2.5.dp
                         )
                         Spacer(modifier = Modifier.width(12.dp))
@@ -422,11 +410,11 @@ private fun ActiveTaxiStatusBanner(
                             Surface(
                                 modifier = Modifier.size(42.dp),
                                 shape = CircleShape,
-                                color = NeonCyan.copy(alpha = 0.2f),
-                                border = BorderStroke(1.dp, NeonCyan)
+                                color = MinimalPrimaryContainer,
+                                border = BorderStroke(1.dp, MinimalPrimary)
                             ) {
                                 Box(contentAlignment = Alignment.Center) {
-                                    Icon(Icons.Default.Person, contentDescription = null, tint = NeonCyan)
+                                    Icon(Icons.Default.Person, contentDescription = null, tint = MinimalPrimary)
                                 }
                             }
                             Spacer(modifier = Modifier.width(12.dp))
@@ -446,20 +434,20 @@ private fun ActiveTaxiStatusBanner(
 
                         Surface(
                             shape = RoundedCornerShape(8.dp),
-                            color = CyberSurface,
-                            border = BorderStroke(1.dp, CyberCardBorder)
+                            color = MinimalSurface,
+                            border = BorderStroke(1.dp, MinimalBorderSubtle)
                         ) {
                             Text(
                                 text = "★ ${ride.driverRating}",
                                 style = MaterialTheme.typography.labelSmall.copy(fontWeight = FontWeight.Bold),
-                                color = TrafficYellow,
+                                color = Color(0xFFD97706),
                                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
                             )
                         }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
-                    HorizontalDivider(color = CyberCardBorder)
+                    HorizontalDivider(color = MinimalBorderSubtle)
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Row(
@@ -468,7 +456,7 @@ private fun ActiveTaxiStatusBanner(
                     ) {
                         Text(
                             text = if (ride.status == TaxiRideStatus.ARRIVING) "Conductor llegando en 1 min" else "Conductor en camino (${ride.etaMinutes} min)",
-                            color = NeonCyan,
+                            color = MinimalPrimary,
                             style = MaterialTheme.typography.bodyMedium.copy(fontWeight = FontWeight.Bold)
                         )
                         Text(
@@ -490,9 +478,10 @@ private fun ActiveTaxiStatusBanner(
                     .height(44.dp),
                 shape = RoundedCornerShape(10.dp),
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = AlertRed.copy(alpha = 0.8f),
-                    contentColor = TextPrimary
-                )
+                    containerColor = TrafficRed.copy(alpha = 0.15f),
+                    contentColor = TrafficRed
+                ),
+                border = BorderStroke(1.dp, TrafficRed.copy(alpha = 0.4f))
             ) {
                 Text("Cancelar Solicitud", style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold))
             }

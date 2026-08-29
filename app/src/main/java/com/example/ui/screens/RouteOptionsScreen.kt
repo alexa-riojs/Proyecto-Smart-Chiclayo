@@ -40,66 +40,81 @@ fun RouteOptionsScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground)
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .widthIn(max = 600.dp)
+                .align(Alignment.TopCenter)
+        ) {
             // Top Half: Map View with Route Lines
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.48f)
+                    .weight(0.46f)
             ) {
                 ChiclayoMapCanvas(
                     modifier = Modifier.fillMaxSize(),
                     showActiveRoute = true
                 )
 
-                // Top Bar (Matches Page 4)
+                // Top Bar
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                        .padding(horizontal = 16.dp, vertical = 6.dp)
                 ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
+                    Surface(
+                        shape = RoundedCornerShape(16.dp),
+                        color = MinimalSurface.copy(alpha = 0.95f),
+                        border = BorderStroke(1.dp, MinimalBorder),
+                        shadowElevation = 2.dp
                     ) {
-                        IconButton(
-                            onClick = onBack,
-                            modifier = Modifier.testTag("route_options_back_button")
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 8.dp, vertical = 4.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                                contentDescription = "Atrás",
-                                tint = TextPrimary
-                            )
-                        }
+                            IconButton(
+                                onClick = onBack,
+                                modifier = Modifier.testTag("route_options_back_button")
+                            ) {
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "Atrás",
+                                    tint = TextPrimary
+                                )
+                            }
 
-                        Text(
-                            text = "Route Options",
-                            style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
-                            color = TextPrimary
-                        )
-
-                        IconButton(onClick = { /* Filter */ }) {
-                            Icon(
-                                imageVector = Icons.Default.Tune,
-                                contentDescription = "Filtros",
-                                tint = TextPrimary
+                            Text(
+                                text = "Opciones de Ruta",
+                                style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
+                                color = TextPrimary
                             )
+
+                            IconButton(onClick = { /* Filter */ }) {
+                                Icon(
+                                    imageVector = Icons.Default.Tune,
+                                    contentDescription = "Filtros",
+                                    tint = TextPrimary
+                                )
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(6.dp))
+                    Spacer(modifier = Modifier.height(8.dp))
 
-                    // Origin & Destination Floating Card (Page 4)
+                    // Origin & Destination Floating Card
                     Card(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(14.dp),
-                        colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard.copy(alpha = 0.95f)),
-                        border = BorderStroke(1.dp, CyberCardBorder)
+                        colors = CardDefaults.cardColors(containerColor = MinimalSurface.copy(alpha = 0.96f)),
+                        border = BorderStroke(1.dp, MinimalBorder),
+                        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp)
                     ) {
                         Column(modifier = Modifier.padding(14.dp)) {
                             // Origin
@@ -108,13 +123,13 @@ fun RouteOptionsScreen(
                                     modifier = Modifier
                                         .size(10.dp)
                                         .clip(CircleShape)
-                                        .background(NeonCyan)
+                                        .background(MinimalPrimary)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column {
                                     Text(
-                                        text = "ORIGIN",
-                                        style = MaterialTheme.typography.labelSmall,
+                                        text = "ORIGEN",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                         color = TextMuted
                                     )
                                     Text(
@@ -125,9 +140,9 @@ fun RouteOptionsScreen(
                                 }
                             }
 
-                            Spacer(modifier = Modifier.height(10.dp))
-                            HorizontalDivider(color = CyberCardBorder)
-                            Spacer(modifier = Modifier.height(10.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
+                            HorizontalDivider(color = MinimalBorderSubtle)
+                            Spacer(modifier = Modifier.height(8.dp))
 
                             // Destination
                             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -140,8 +155,8 @@ fun RouteOptionsScreen(
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column {
                                     Text(
-                                        text = "DESTINATION",
-                                        style = MaterialTheme.typography.labelSmall,
+                                        text = "DESTINO",
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                         color = TextMuted
                                     )
                                     Text(
@@ -156,15 +171,16 @@ fun RouteOptionsScreen(
                 }
             }
 
-            // Bottom Half: 3 Routes Found Sheet (Matches Page 4)
+            // Bottom Half: Routes Found Sheet
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(0.52f)
+                    .weight(0.54f)
                     .navigationBarsPadding(),
                 shape = RoundedCornerShape(topStart = 24.dp, topEnd = 24.dp),
-                colors = CardDefaults.cardColors(containerColor = CyberSurface),
-                border = BorderStroke(1.dp, CyberCardBorder)
+                colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                border = BorderStroke(1.dp, MinimalBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 6.dp)
             ) {
                 Column(
                     modifier = Modifier
@@ -173,12 +189,12 @@ fun RouteOptionsScreen(
                         .verticalScroll(rememberScrollState())
                 ) {
                     Text(
-                        text = "3 Routes Found",
+                        text = "3 Rutas Encontradas",
                         style = MaterialTheme.typography.titleLarge.copy(fontWeight = FontWeight.Bold),
                         color = TextPrimary
                     )
 
-                    Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(14.dp))
 
                     // Route Cards
                     routes.forEach { route ->
@@ -191,23 +207,24 @@ fun RouteOptionsScreen(
                                 onSelectRoute(route)
                             }
                         )
-                        Spacer(modifier = Modifier.height(12.dp))
+                        Spacer(modifier = Modifier.height(10.dp))
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
+                    Spacer(modifier = Modifier.height(10.dp))
 
-                    // Action Button: Iniciar Ruta (Page 4)
+                    // Action Button: Iniciar Ruta
                     Button(
                         onClick = onStartNavigation,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(52.dp)
+                            .height(50.dp)
                             .testTag("start_navigation_button"),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MinimalPrimary,
                             contentColor = Color.White
-                        )
+                        ),
+                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
                     ) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Icon(
@@ -244,14 +261,14 @@ private fun RouteItemCard(
             .testTag("route_card_${route.id}"),
         shape = RoundedCornerShape(14.dp),
         colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) CyberSurfaceElevated else CyberSurfaceCard
+            containerColor = if (isSelected) MinimalPrimaryContainer else MinimalSurfaceVariant
         ),
         border = BorderStroke(
             width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) NeonCyan else CyberCardBorder
+            color = if (isSelected) MinimalPrimary else MinimalBorderSubtle
         )
     ) {
-        Column(modifier = Modifier.padding(16.dp)) {
+        Column(modifier = Modifier.padding(14.dp)) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -260,28 +277,28 @@ private fun RouteItemCard(
                 Text(
                     text = route.name,
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = TextPrimary
+                    color = if (isSelected) MinimalOnPrimaryContainer else TextPrimary
                 )
 
                 if (route.tag.isNotEmpty()) {
                     Surface(
                         shape = RoundedCornerShape(6.dp),
-                        color = if (route.isFastest) NeonCyan else CyberSurface,
-                        border = BorderStroke(1.dp, if (route.isFastest) NeonCyan else CyberCardBorder)
+                        color = if (route.isFastest) MinimalPrimary else MinimalSurface,
+                        border = BorderStroke(1.dp, if (route.isFastest) MinimalPrimary else MinimalBorderSubtle)
                     ) {
                         Text(
                             text = route.tag,
                             style = MaterialTheme.typography.labelSmall.copy(
                                 fontWeight = FontWeight.Bold,
-                                color = if (route.isFastest) CyberDark else NeonCyan
+                                color = if (route.isFastest) Color.White else MinimalPrimary
                             ),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp)
                         )
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(6.dp))
+            Spacer(modifier = Modifier.height(4.dp))
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
@@ -308,7 +325,7 @@ private fun RouteItemCard(
                         modifier = Modifier
                             .size(8.dp)
                             .clip(CircleShape)
-                            .background(if (route.trafficCondition.contains("FLUID")) TrafficGreen else TrafficYellow)
+                            .background(if (route.trafficCondition.contains("FLUID") || route.trafficCondition.contains("FLUIDO")) TrafficGreen else TrafficYellow)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(

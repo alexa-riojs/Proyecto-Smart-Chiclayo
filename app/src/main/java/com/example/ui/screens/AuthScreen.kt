@@ -100,11 +100,13 @@ fun AuthScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MinimalBackground)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 500.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .padding(horizontal = 24.dp)

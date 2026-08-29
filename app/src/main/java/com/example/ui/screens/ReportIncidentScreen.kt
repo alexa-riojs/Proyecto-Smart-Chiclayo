@@ -10,7 +10,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -45,20 +44,22 @@ fun ReportIncidentScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(CyberDark)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 600.dp)
                 .statusBarsPadding()
                 .navigationBarsPadding()
                 .verticalScroll(rememberScrollState())
         ) {
-            // Top Bar (Matches Page 7)
+            // Top Bar
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
@@ -79,7 +80,7 @@ fun ReportIncidentScreen(
                         fontFamily = FontFamily.Serif,
                         fontWeight = FontWeight.Bold
                     ),
-                    color = NeonCyan
+                    color = MinimalPrimary
                 )
 
                 IconButton(onClick = { /* Notifications */ }) {
@@ -91,21 +92,21 @@ fun ReportIncidentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(10.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
-            // Header (Matches Page 7)
+            // Header
             Column(modifier = Modifier.padding(horizontal = 20.dp)) {
                 Text(
                     text = "Reportar\nIncidencia",
-                    style = MaterialTheme.typography.displayMedium.copy(
+                    style = MaterialTheme.typography.displaySmall.copy(
                         fontWeight = FontWeight.ExtraBold,
-                        lineHeight = 32.sp
+                        lineHeight = 34.sp
                     ),
                     color = TextPrimary
                 )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             // Form Container Card
             Card(
@@ -113,16 +114,17 @@ fun ReportIncidentScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 20.dp),
                 shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = CyberSurfaceCard),
-                border = BorderStroke(1.dp, CyberCardBorder)
+                colors = CardDefaults.cardColors(containerColor = MinimalSurface),
+                border = BorderStroke(1.dp, MinimalBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(18.dp)) {
-                    // UBICACIÓN ACTUAL Card (Matches Page 7)
+                    // UBICACIÓN ACTUAL Card
                     Surface(
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(12.dp),
-                        color = CyberSurface,
-                        border = BorderStroke(1.dp, CyberCardBorder)
+                        color = MinimalSurfaceVariant,
+                        border = BorderStroke(1.dp, MinimalBorderSubtle)
                     ) {
                         Row(
                             modifier = Modifier.padding(14.dp),
@@ -136,14 +138,14 @@ fun ReportIncidentScreen(
                                 Icon(
                                     imageVector = Icons.Default.MyLocation,
                                     contentDescription = "Ubicación",
-                                    tint = NeonCyan,
+                                    tint = MinimalPrimary,
                                     modifier = Modifier.size(20.dp)
                                 )
                                 Spacer(modifier = Modifier.width(10.dp))
                                 Column {
                                     Text(
                                         text = "UBICACIÓN ACTUAL",
-                                        style = MaterialTheme.typography.labelSmall,
+                                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                                         color = TextMuted
                                     )
                                     Text(
@@ -156,24 +158,24 @@ fun ReportIncidentScreen(
                             }
 
                             TextButton(
-                                onClick = { locationText = "Av. Bolognesi / Balta" },
+                                onClick = { locationText = "Av. Bolognesi / Balta, Chiclayo" },
                                 modifier = Modifier.testTag("adjust_location_button")
                             ) {
                                 Text(
                                     text = "Ajustar",
-                                    color = NeonCyan,
+                                    color = MinimalPrimary,
                                     style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
                                 )
                             }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
-                    // TIPO DE INCIDENCIA (Matches Page 7 2-column Grid)
+                    // TIPO DE INCIDENCIA
                     Text(
                         text = "TIPO DE INCIDENCIA",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted,
                         fontWeight = FontWeight.Bold
                     )
@@ -185,7 +187,7 @@ fun ReportIncidentScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         IncidentTypeButton(
-                            title = "Accident",
+                            title = "Accidente",
                             icon = Icons.Default.CarCrash,
                             isSelected = selectedType == IncidentType.ACCIDENT,
                             modifier = Modifier.weight(1f),
@@ -193,7 +195,7 @@ fun ReportIncidentScreen(
                         )
 
                         IncidentTypeButton(
-                            title = "Road Work",
+                            title = "Obras / Vía",
                             icon = Icons.Default.Handyman,
                             isSelected = selectedType == IncidentType.ROAD_WORK,
                             modifier = Modifier.weight(1f),
@@ -208,7 +210,7 @@ fun ReportIncidentScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp)
                     ) {
                         IncidentTypeButton(
-                            title = "Pothole",
+                            title = "Bache / Hueco",
                             icon = Icons.Default.WarningAmber,
                             isSelected = selectedType == IncidentType.POTHOLE,
                             modifier = Modifier.weight(1f),
@@ -216,7 +218,7 @@ fun ReportIncidentScreen(
                         )
 
                         IncidentTypeButton(
-                            title = "Congestion",
+                            title = "Congestión",
                             icon = Icons.Default.Traffic,
                             isSelected = selectedType == IncidentType.CONGESTION,
                             modifier = Modifier.weight(1f),
@@ -227,19 +229,19 @@ fun ReportIncidentScreen(
                     Spacer(modifier = Modifier.height(10.dp))
 
                     IncidentTypeButton(
-                        title = "Emergency",
+                        title = "Emergencia",
                         icon = Icons.Default.Emergency,
                         isSelected = selectedType == IncidentType.EMERGENCY,
                         modifier = Modifier.fillMaxWidth(0.485f),
                         onClick = { selectedType = IncidentType.EMERGENCY }
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
-                    // NIVEL DE PRIORIDAD (Dropdown selector)
+                    // NIVEL DE PRIORIDAD
                     Text(
                         text = "NIVEL DE PRIORIDAD",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted,
                         fontWeight = FontWeight.Bold
                     )
@@ -256,8 +258,8 @@ fun ReportIncidentScreen(
                                 .menuAnchor()
                                 .clickable { priorityDropdownExpanded = true },
                             shape = RoundedCornerShape(10.dp),
-                            color = CyberSurface,
-                            border = BorderStroke(1.dp, CyberCardBorder)
+                            color = MinimalSurfaceVariant,
+                            border = BorderStroke(1.dp, MinimalBorderSubtle)
                         ) {
                             Row(
                                 modifier = Modifier.padding(horizontal = 14.dp, vertical = 14.dp),
@@ -280,7 +282,7 @@ fun ReportIncidentScreen(
                         ExposedDropdownMenu(
                             expanded = priorityDropdownExpanded,
                             onDismissRequest = { priorityDropdownExpanded = false },
-                            modifier = Modifier.background(CyberSurfaceElevated)
+                            modifier = Modifier.background(MinimalSurface)
                         ) {
                             PriorityLevel.entries.forEach { priority ->
                                 DropdownMenuItem(
@@ -294,12 +296,12 @@ fun ReportIncidentScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
                     // DESCRIPCIÓN
                     Text(
                         text = "DESCRIPCIÓN",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted,
                         fontWeight = FontWeight.Bold
                     )
@@ -318,21 +320,21 @@ fun ReportIncidentScreen(
                         },
                         shape = RoundedCornerShape(10.dp),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = NeonCyan,
-                            unfocusedBorderColor = CyberCardBorder,
-                            focusedContainerColor = CyberSurface,
-                            unfocusedContainerColor = CyberSurface,
+                            focusedBorderColor = MinimalPrimary,
+                            unfocusedBorderColor = MinimalBorder,
+                            focusedContainerColor = MinimalSurfaceVariant,
+                            unfocusedContainerColor = MinimalSurfaceVariant,
                             focusedTextColor = TextPrimary,
                             unfocusedTextColor = TextPrimary
                         )
                     )
 
-                    Spacer(modifier = Modifier.height(20.dp))
+                    Spacer(modifier = Modifier.height(18.dp))
 
-                    // EVIDENCIA FOTOGRÁFICA (Camera upload box)
+                    // EVIDENCIA FOTOGRÁFICA
                     Text(
                         text = "EVIDENCIA FOTOGRÁFICA",
-                        style = MaterialTheme.typography.labelSmall,
+                        style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                         color = TextMuted,
                         fontWeight = FontWeight.Bold
                     )
@@ -342,12 +344,12 @@ fun ReportIncidentScreen(
                     Surface(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(76.dp)
+                            .height(72.dp)
                             .clip(RoundedCornerShape(10.dp))
                             .clickable { photoAttached = !photoAttached }
                             .testTag("attach_photo_button"),
-                        color = if (photoAttached) NeonCyan.copy(alpha = 0.1f) else CyberSurface,
-                        border = BorderStroke(1.dp, if (photoAttached) NeonCyan else CyberCardBorder)
+                        color = if (photoAttached) MinimalPrimaryContainer else MinimalSurfaceVariant,
+                        border = BorderStroke(1.dp, if (photoAttached) MinimalPrimary else MinimalBorderSubtle)
                     ) {
                         Row(
                             modifier = Modifier.fillMaxSize(),
@@ -357,13 +359,13 @@ fun ReportIncidentScreen(
                             Icon(
                                 imageVector = if (photoAttached) Icons.Default.CheckCircle else Icons.Default.PhotoCamera,
                                 contentDescription = "Foto",
-                                tint = if (photoAttached) NeonCyan else TextSecondary,
+                                tint = if (photoAttached) MinimalPrimary else TextSecondary,
                                 modifier = Modifier.size(24.dp)
                             )
                             Spacer(modifier = Modifier.width(10.dp))
                             Text(
                                 text = if (photoAttached) "Foto adjuntada (1 imagen)" else "Adjuntar foto (Opcional)",
-                                color = if (photoAttached) NeonCyan else TextSecondary,
+                                color = if (photoAttached) MinimalOnPrimaryContainer else TextSecondary,
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -371,33 +373,34 @@ fun ReportIncidentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
 
-            // Submit Button: Enviar Reporte (Matches Page 7)
+            // Submit Button
             Button(
                 onClick = {
                     onSubmitReport(selectedType, selectedPriority, locationText, descriptionText)
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(52.dp)
+                    .height(50.dp)
                     .padding(horizontal = 20.dp)
                     .testTag("submit_report_button"),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MinimalPrimary,
                     contentColor = Color.White
-                )
+                ),
+                elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
-                        imageVector = Icons.Default.PlayArrow,
+                        imageVector = Icons.Default.Send,
                         contentDescription = "Enviar",
-                        modifier = Modifier.size(20.dp)
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "▷ Enviar Reporte",
+                        text = "Enviar Reporte",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             letterSpacing = 0.5.sp
@@ -406,7 +409,7 @@ fun ReportIncidentScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(40.dp))
         }
     }
 }
@@ -421,13 +424,13 @@ private fun IncidentTypeButton(
 ) {
     Surface(
         modifier = modifier
-            .height(72.dp)
+            .height(68.dp)
             .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() },
-        color = if (isSelected) CyberSurfaceElevated else CyberSurface,
+        color = if (isSelected) MinimalPrimaryContainer else MinimalSurfaceVariant,
         border = BorderStroke(
             width = if (isSelected) 1.5.dp else 1.dp,
-            color = if (isSelected) NeonCyan else CyberCardBorder
+            color = if (isSelected) MinimalPrimary else MinimalBorderSubtle
         )
     ) {
         Column(
@@ -438,14 +441,14 @@ private fun IncidentTypeButton(
             Icon(
                 imageVector = icon,
                 contentDescription = title,
-                tint = if (isSelected) NeonCyan else TextSecondary,
+                tint = if (isSelected) MinimalPrimary else TextSecondary,
                 modifier = Modifier.size(22.dp)
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodySmall.copy(fontSize = 11.sp, fontWeight = FontWeight.Medium),
-                color = if (isSelected) NeonCyanLight else TextSecondary
+                color = if (isSelected) MinimalOnPrimaryContainer else TextSecondary
             )
         }
     }

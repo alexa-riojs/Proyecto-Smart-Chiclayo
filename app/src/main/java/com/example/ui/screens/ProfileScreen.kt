@@ -34,11 +34,13 @@ fun ProfileScreen(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(MinimalBackground)
+            .background(MinimalBackground),
+        contentAlignment = Alignment.TopCenter
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
+                .widthIn(max = 600.dp)
                 .statusBarsPadding()
                 .padding(horizontal = 20.dp)
                 .verticalScroll(rememberScrollState())
@@ -63,12 +65,13 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(16.dp),
                 colors = CardDefaults.cardColors(containerColor = MinimalSurface),
-                border = BorderStroke(1.dp, MinimalBorder)
+                border = BorderStroke(1.dp, MinimalBorder),
+                elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
             ) {
                 Column(modifier = Modifier.padding(20.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Surface(
-                            modifier = Modifier.size(58.dp),
+                            modifier = Modifier.size(56.dp),
                             shape = CircleShape,
                             color = MinimalPrimaryContainer,
                             border = BorderStroke(1.5.dp, MinimalPrimary)
@@ -184,7 +187,7 @@ fun ProfileScreen(
                 isDestructive = true
             )
 
-            Spacer(modifier = Modifier.height(100.dp))
+            Spacer(modifier = Modifier.height(110.dp))
         }
     }
 }
